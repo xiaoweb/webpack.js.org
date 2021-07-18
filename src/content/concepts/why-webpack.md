@@ -6,12 +6,14 @@ contributors:
   - montogeek
   - jeremenichelli
   - EugeneHlushko
+translators:
+  - QC-L
+  - lcxfs1991
 ---
 
 想要理解为什么要使用 webpack，我们先回顾下历史，在打包工具出现之前，我们是如何在 web 中使用 JavaScript 的。
 
 在浏览器中运行 JavaScript 有两种方法。第一种方式，引用一些脚本来存放每个功能；此解决方案很难扩展，因为加载太多脚本会导致网络瓶颈。第二种方式，使用一个包含所有项目代码的大型 `.js` 文件，但是这会导致作用域、文件大小、可读性和可维护性方面的问题。
-
 
 ## 立即调用函数表达式(IIFE) - Immediately invoked function expressions {#iifes---immediately-invoked-function-expressions}
 
@@ -23,7 +25,6 @@ IIFE 使用方式产生出 Make, Gulp, Grunt, Broccoli 或 Brunch 等工具。�
 
 即使你只用到 lodash 中的某个函数，也必须在构建结果中加入整个库，然后将它们压缩在一起。如何 treeshake 代码依赖？难以大规模地实现延迟加载代码块，这需要开发人员手动地进行大量工作。
 
-
 ## 感谢 Node.js，JavaScript 模块诞生了 {#birth-of-javascript-modules-happened-thanks-to-nodejs}
 
 Node.js 是一个 JavaScript 运行时，可以在浏览器环境之外的计算机和服务器中使用。webpack 运行在 Node.js 中。
@@ -32,13 +33,11 @@ Node.js 是一个 JavaScript 运行时，可以在浏览器环境之外的计算
 
 CommonJS 问世并引入了 `require` 机制，它允许你在当前文件中加载和使用某个模块。导入需要的每个模块，这一开箱即用的功能，帮助我们解决了作用域问题。
 
-
 ## npm + Node.js + modules - 大规模分发模块 {#npm--nodejs--modules----mass-distribution}
 
 JavaScript 已经成为一种语言、一个平台和一种快速开发和创建快速应用程序的方式，接管了整个 JavaScript 世界。
 
 但 CommonJS 没有浏览器支持。没有 [live binding(实时绑定)](https://medium.com/webpack/the-state-of-javascript-modules-4636d1774358)。循环引用存在问题。同步执行的模块解析加载器速度很慢。虽然 CommonJS 是 Node.js 项目的绝佳解决方案，但浏览器不支持模块，因而产生了 Browserify, RequireJS 和 SystemJS 等打包工具，允许我们编写能够在浏览器中运行的 CommonJS 模块。
-
 
 ## ESM - ECMAScript 模块 {#esm---ecmascript-modules}
 
@@ -52,6 +51,6 @@ JavaScript 已经成为一种语言、一个平台和一种快速开发和创建
 
 是否可以有一种方式，不仅可以让我们编写模块，而且还支持任何模块格式（至少在我们到达 ESM 之前），并且可以同时处理资源和资产？
 
-这就是 webpack 存在的原因。它是一个工具，可以打包你的 JavaScript 应用程序（支持 ESM 和 CommonJS），可以扩展为支持许多不同的资产，例如：images, fonts 和 stylesheets。
+这就是 webpack 存在的原因。它是一个工具，可以打包你的 JavaScript 应用程序（支持 ESM 和 CommonJS），可以扩展为支持许多不同的静态资源，例如：images, fonts 和 stylesheets。
 
 webpack 关心性能和加载时间；它始终在改进或添加新功能，例如：异步地加载 chunk 和预取，以便为你的项目和用户提供最佳体验。

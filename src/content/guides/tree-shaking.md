@@ -17,6 +17,9 @@ contributors:
   - AnayaDesign
   - torifat
   - rahul3v
+translators:
+  - QC-L
+  - lcxfs1991
 related:
   - title: Debugging Optimization Bailouts
     url: https://webpack.js.org/plugins/module-concatenation-plugin/#debugging-optimization-bailouts
@@ -30,14 +33,13 @@ webpack 2 正式版本内置支持 ES2015 模块（也叫做 _harmony modules_�
 
 T> 本指南的继承自 [起步](/guides/getting-started) 指南。如果你尚未阅读该指南，请先行阅读。
 
-
 ## 添加一个通用模块 {#add-a-utility}
 
 在我们的项目中添加一个新的通用模块文件 `src/math.js`，并导出两个函数：
 
-__project__
+**project**
 
-``` diff
+```diff
 webpack-demo
 |- package.json
 |- webpack.config.js
@@ -50,7 +52,7 @@ webpack-demo
 |- /node_modules
 ```
 
-__src/math.js__
+**src/math.js**
 
 ```javascript
 export function square(x) {
@@ -61,11 +63,12 @@ export function cube(x) {
   return x * x * x;
 }
 ```
+
 需要将 `mode` 配置设置成[development](/configuration/mode/#mode-development)，以确定 bundle 不会被压缩：
 
-__webpack.config.js__
+**webpack.config.js**
 
-``` diff
+```diff
 const path = require('path');
 
 module.exports = {
@@ -83,9 +86,9 @@ module.exports = {
 
 配置完这些后，更新入口脚本，使用其中一个新方法，并且为了简化示例，我们先将 `lodash` 删除：
 
-__src/index.js__
+**src/index.js**
 
-``` diff
+```diff
 - import _ from 'lodash';
 + import { cube } from './math.js';
 
@@ -106,13 +109,13 @@ __src/index.js__
   document.body.appendChild(component());
 ```
 
-注意，我们__没有从 `src/math.js` 模块中 `import` 另外一个 `square` 方法__。这个函数就是所谓的“未引用代码(dead code)”，也就是说，应该删除掉未被引用的 `export`。现在运行 npm script `npm run build`，并查看输出的 bundle：
+注意，我们**没有从 `src/math.js` 模块中 `import` 另外一个 `square` 方法**。这个函数就是所谓的“未引用代码(dead code)”，也就是说，应该删除掉未被引用的 `export`。现在运行 npm script `npm run build`，并查看输出的 bundle：
 
-__dist/bundle.js (around lines 90 - 100)__
+**dist/bundle.js (around lines 90 - 100)**
 
 ```js
 /* 1 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function (module, __webpack_exports__, __webpack_require__) {
   'use strict';
   /* unused harmony export square */
   /* harmony export (immutable) */ __webpack_exports__['a'] = cube;
@@ -128,10 +131,9 @@ __dist/bundle.js (around lines 90 - 100)__
 
 注意，上面的 `unused harmony export square` 注释。如果你观察它下面的代码，你会注意到虽然我们没有引用 `square`，但它仍然被包含在 bundle 中。我们将在下一节解决这个问题。
 
-
 ## 将文件标记为 side-effect-free(无副作用) {#mark-the-file-as-side-effect-free}
 
-在一个纯粹的 ESM 模块世界中，很容易识别出哪些文件有 side effect。然而，我们的项目无法达到这种纯度，所以，此时有必要提示 webpack compiler 哪些代码是“纯粹部分”。
+在一个纯粹的 ESM 模块世界中，很容易识别出哪些文件有副作用。然而，我们的项目无法达到这种纯度，所以，此时有必要提示 webpack compiler 哪些代码是“纯粹部分”。
 
 通过 package.json 的 `"sideEffects"` 属性，来实现这种方式。
 
@@ -142,7 +144,7 @@ __dist/bundle.js (around lines 90 - 100)__
 }
 ```
 
-如果所有代码都不包含 side effect，我们就可以简单地将该属性标记为 `false`，来告知 webpack，它可以安全地删除未用到的 export。
+如果所有代码都不包含副作用，我们就可以简单地将该属性标记为 `false`，来告知 webpack 它可以安全地删除未用到的 export。
 
 T> "side effect(副作用)" 的定义是，在导入时会执行特殊行为的代码，而不是仅仅暴露一个 export 或多个 export。举例说明，例如 polyfill，它影响全局作用域，并且通常不提供 export。
 
@@ -151,23 +153,18 @@ T> "side effect(副作用)" 的定义是，在导入时会执行特殊行为的�
 ```json
 {
   "name": "your-project",
-  "sideEffects": [
-    "./src/some-side-effectful-file.js"
-  ]
+  "sideEffects": ["./src/some-side-effectful-file.js"]
 }
 ```
 
-数组方式支持相对路径、绝对路径和 glob 模式匹配相关文件。它在内部使用 [micromatch](https://github.com/micromatch/micromatch#matching-features)。
+此数组支持简单的 glob 模式匹配相关文件。其内部使用了 [glob-to-regexp](https://github.com/fitzgen/glob-to-regexp)（支持：`*`，`**`，`{a,b}`，`[a-z]`）。如果匹配模式为 `*.css`，且不包含 `/`，将被视为 `**/*.css`。
 
 T> 注意，所有导入文件都会受到 tree shaking 的影响。这意味着，如果在项目中使用类似 `css-loader` 并 import 一个 CSS 文件，则需要将其添加到 side effect 列表中，以免在生产模式中无意中将它删除：
 
 ```json
 {
   "name": "your-project",
-  "sideEffects": [
-    "./src/some-side-effectful-file.js",
-    "*.css"
-  ]
+  "sideEffects": ["./src/some-side-effectful-file.js", "*.css"]
 }
 ```
 
@@ -177,7 +174,7 @@ T> 注意，所有导入文件都会受到 tree shaking 的影响。这意味着
 
 [`sideEffects`](/configuration/optimization/#optimizationsideeffects) 和 [`usedExports`](/configuration/optimization/#optimizationusedexports)（更多被认为是 tree shaking）是两种不同的优化方式。
 
-__`sideEffects` 更为有效__ 是因为它允许跳过整个模块/文件和整个文件子树。
+**`sideEffects` 更为有效** 是因为它允许跳过整个模块/文件和整个文件子树。
 
 `usedExports` 依赖于 [terser](https://github.com/terser-js/terser) 去检测语句中的副作用。它是一个 JavaScript 任务而且没有像 `sideEffects` 一样简单直接。而且它不能跳转子树/依赖由于细则中说副作用需要被评估。尽管导出函数能运作如常，但 React 框架的高阶函数（HOC）在这种情况下是会出问题的。
 
@@ -199,7 +196,11 @@ function Button(_ref) {
 function merge() {
   var _final = {};
 
-  for (var _len = arguments.length, objs = new Array(_len), _key = 0; _key < _len; _key++) {
+  for (
+    var _len = arguments.length, objs = new Array(_len), _key = 0;
+    _key < _len;
+    _key++
+  ) {
     objs[_key] = arguments[_key];
   }
 
@@ -214,13 +215,15 @@ function merge() {
 function withAppProvider() {
   return function addProvider(WrappedComponent) {
     var WithProvider =
-    /*#__PURE__*/
-    function (_React$Component) {
-      // ...
-      return WithProvider;
-    }(Component);
+      /*#__PURE__*/
+      (function (_React$Component) {
+        // ...
+        return WithProvider;
+      })(Component);
 
-    WithProvider.contextTypes = WrappedComponent.contextTypes ? merge(WrappedComponent.contextTypes, polarisAppProviderContextTypes) : polarisAppProviderContextTypes;
+    WithProvider.contextTypes = WrappedComponent.contextTypes
+      ? merge(WrappedComponent.contextTypes, polarisAppProviderContextTypes)
+      : polarisAppProviderContextTypes;
     var FinalComponent = hoistStatics(WithProvider, WrappedComponent);
     return FinalComponent;
   };
@@ -230,17 +233,19 @@ var Button$1 = withAppProvider()(Button);
 
 export {
   // ...,
-  Button$1
+  Button$1,
 };
 ```
 
 当 `Button` 没有被使用，你可以有效地清除掉 `export { Button$1 };` 且保留所有剩下的代码。那问题来了，“这段代码会有任何副作用或它能被安全都清理掉吗？”。很难说，尤其是这 `withAppProvider()(Button)` 这段代码。`withAppProvider` 被调用，而且返回的值也被调用。当调用 `merge` 或 `hoistStatics` 会有任何副作用吗？当给 `WithProvider.contextTypes` (Setter?) 赋值或当读取 `WrappedComponent.contextTypes` (Getter) 的时候，会有任何副作用吗？
 
-实际上，Terser 尝试去解决以上的问题，但在很多情况下，它不太确定。但这不会意味着 terser 由于无法解决这些问题而运作得不好，而是由于在 JavaScript 这种动态语言中实在太难去确定。
+实际上，Terser 尝试去解决以上的问题，但在很多情况下，它不太确定。但这不会意味着 terser 由于无法解决这些问题而运作得不好，而是由于在 JavaScript 这种动态语言中实在太难去确定。
 
 但我们可以通过 `/*#__PURE__*/` 注释来帮忙 terser。它给一个语句标记为没有副作用。就这样一个简单的改变就能够使下面的代码被 tree-shake:
 
-`var Button$1 = /*#__PURE__*/ withAppProvider()(Button);`
+```javascript
+var Button$1 = /*#__PURE__*/ withAppProvider()(Button);
+```
 
 这会使得这段代码被过滤，但仍然会有一些引入的问题，需要对其进行评估，因为它们产生了副作用。
 
@@ -250,7 +255,7 @@ export {
 
 在一个 `Shopify Polaris` 的例子，原有的模块如下：
 
-__index.js__
+**index.js**
 
 ```javascript
 import './configure';
@@ -258,17 +263,17 @@ export * from './types';
 export * from './components';
 ```
 
-__components/index.js__
+**components/index.js**
 
 ```javascript
 // ...
 export { default as Breadcrumbs } from './Breadcrumbs';
-export { default as Button, buttonFrom, buttonsFrom, } from './Button';
+export { default as Button, buttonFrom, buttonsFrom } from './Button';
 export { default as ButtonGroup } from './ButtonGroup';
 // ...
 ```
 
-__package.json__
+**package.json**
 
 ```json
 // ...
@@ -297,7 +302,7 @@ __package.json__
 - `components/Button.js`: 直接的导出被使用，没有被标记为有副作用 -> 导入它
 - `components/Button.css`: 没有导出被使用，但被标记为有副作用 -> 导入它
 
-在这种情况下，只有4个模块被导入到 bundle 中：
+在这种情况下，只有 4 个模块被导入到 bundle 中：
 
 - `index.js`: 基本为空的
 - `configure.js`
@@ -306,13 +311,13 @@ __package.json__
 
 在这次的优化后，其它的优化项目都可以应用。例如：从 `Button.js` 导出 的`buttonFrom` 和 `buttonsFrom` 也没有被使用。`usedExports` 优化会捡起这些代码而且 terser 会能够从 bundle 中把这些语句摘除出来。
 
-模块合并也会应用。所以这4个模块，加上入口的模块（也可能有更多的依赖）会被合并。 __`index.js` 最终没有生成代码__.
+模块合并也会应用。所以这 4 个模块，加上入口的模块（也可能有更多的依赖）会被合并。**`index.js` 最终没有生成代码**.
 
 ## 将函数调用标记为无副作用 {#mark-a-function-call-as-side-effect-free}
 
 是可以告诉 webpack 一个函数调用是无副作用的，只要通过 `/*#__PURE__*/` 注释。它可以被放到函数调用之前，用来标记它们是无副作用的(pure)。传到函数中的入参是无法被刚才的注释所标记，需要单独每一个标记才可以。如果一个没被使用的变量定义的初始值被认为是无副作用的（pure），它会被标记为死代码，不会被执行且会被压缩工具清除掉。这个行为被会开启当 [`optimization.innerGraph`](/configuration/optimization/#optimizationinnergraph) 被设置成 `true`。
 
-__file.js__
+**file.js**
 
 ```javascript
 /*#__PURE__*/ double(55);
@@ -320,11 +325,11 @@ __file.js__
 
 ## 压缩输出结果 {#minify-the-output}
 
-通过 `import` 和 `export`  语法，我们已经找出需要删除的“未引用代码(dead code)”，然而，不仅仅是要找出，还要在 bundle 中删除它们。为此，我们需要将 `mode` 配置选项设置为 [`production`](/configuration/mode/#mode-production)。
+通过 `import` 和 `export` 语法，我们已经找出需要删除的“未引用代码(dead code)”，然而，不仅仅是要找出，还要在 bundle 中删除它们。为此，我们需要将 `mode` 配置选项设置为 [`production`](/configuration/mode/#mode-production)。
 
-__webpack.config.js__
+**webpack.config.js**
 
-``` diff
+```diff
 const path = require('path');
 
 module.exports = {
@@ -345,13 +350,13 @@ T> 注意，也可以在命令行接口中使用 `--optimize-minimize` 标记，
 
 准备就绪后，然后运行另一个命令 `npm run build`，看看输出结果有没有发生改变。
 
-你发现 `dist/bundle.js` 中的差异了吗？显然，现在整个 bundle 都已经被 minify(压缩) 和 mangle(混淆破坏)，但是如果仔细观察，则不会看到引入 `square` 函数，但能看到 `cube` 函数的混淆破坏版本（`function r(e){return e*e*e}n.a=r`）。现在，随着 minification(代码压缩) 和 tree shaking，我们的 bundle 减小几个字节！虽然，在这个特定示例中，可能看起来没有减少很多，但是，在有着复杂依赖树的大型应用程序上运行 tree shaking 时，会对 bundle 产生显著的体积优化。
+你发现 `dist/bundle.js` 中的差异了吗？现在整个 bundle 都已经被 minify(压缩) 和 mangle(混淆破坏)，但是如果仔细观察，则不会看到引入 `square` 函数，但能看到 `cube` 函数的混淆破坏版本（`function r(e){return e*e*e}n.a=r`）。现在，随着 minification(代码压缩) 和 tree shaking，我们的 bundle 减小几个字节！虽然，在这个特定示例中，可能看起来没有减少很多，但是，在有着复杂依赖树的大型应用程序上运行 tree shaking 时，会对 bundle 产生显著的体积优化。
 
 T> 在使用 tree shaking 时必须有 [ModuleConcatenationPlugin](/plugins/module-concatenation-plugin) 的支持，您可以通过设置配置项 `mode: "production"` 以启用它。如果您没有如此做，请记得手动引入 [ModuleConcatenationPlugin](/plugins/module-concatenation-plugin)。
 
 ## 结论 {#conclusion}
 
-因此，我们学到为了利用 _tree shaking_ 的优势， 你必须...
+我们学到为了利用 _tree shaking_ 的优势， 你必须...
 
 - 使用 ES2015 模块语法（即 `import` 和 `export`）。
 - 确保没有编译器将您的 ES2015 模块语法转换为 CommonJS 的（顺带一提，这是现在常用的 @babel/preset-env 的默认行为，详细信息请参阅[文档](https://babeljs.io/docs/en/babel-preset-env#modules)）。

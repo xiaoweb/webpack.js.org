@@ -3,6 +3,9 @@ title: coffee-loader
 source: https://raw.githubusercontent.com/webpack-contrib/coffee-loader/master/README.md
 edit: https://github.com/webpack-contrib/coffee-loader/edit/master/README.md
 repo: https://github.com/webpack-contrib/coffee-loader
+translators:
+  - mercurywang
+  - QC-L
 ---
 
 
@@ -191,7 +194,7 @@ module.exports = {
 [npm]: https://img.shields.io/npm/v/coffee-loader.svg
 [npm-url]: https://npmjs.com/package/coffee-loader
 [node]: https://img.shields.io/node/v/coffee-loader.svg
-[node-url]: https://nodejs.org/
+[node-url]: https://nodejs.org
 [deps]: https://david-dm.org/webpack-contrib/coffee-loader.svg
 [deps-url]: https://david-dm.org/webpack-contrib/coffee-loader
 [tests]: https://github.com/webpack-contrib/coffee-loader/workflows/coffee-loader/badge.svg

@@ -1,5 +1,5 @@
 ---
-title: 模块（Module）
+title: Module
 sort: 7
 contributors:
   - sokra
@@ -20,25 +20,191 @@ contributors:
   - Mistyyyy
   - anshumanv
   - chenxsan
+translators:
+  - jacob-lcs
+  - QC-L
 ---
 
 这些选项决定了如何处理项目中的[不同类型的模块](/concepts/modules)。
 
+## `module.generator` {#modulegenerator}
+
+<Badge text="5.12.0+" />
+
+可以使用 `module.generator` 在一个地方配置所有生成器的选项。
+
+**webpack.config.js**
+
+```js
+module.exports = {
+  module: {
+    generator: {
+      asset: {
+        // asseet 模块的 generator 选项
+
+        // 自定义 asset 模块的 publicPath，自 webpack 5.28.0 起可用
+        publicPath: 'assets/',
+      },
+      'asset/inline': {
+        // asset/内联模块的 generator 选项
+      },
+      'asset/resource': {
+        // asset/资源模块的 generator 选项
+
+        // 自定义 asset/resource 模块的 publicPath，自 webpack 5.28.0 起可用
+        publicPath: 'assets/',
+      },
+      javascript: {
+        // 该模块类型尚不支持 generator 选项
+      },
+      'javascript/auto': {
+        // 同上
+      },
+      'javascript/dynamic': {
+        // 同上
+      },
+      'javascript/esm': {
+        // 同上
+      },
+      // 其他...
+    },
+  },
+};
+```
+
+## module.parser {#moduleparser}
+
+<Badge text="5.12.0+" />
+
+类似于 [`module.generator`](#modulegenerator)，你可以用 `module.parser` 在一个地方配置所有解析器的选项。
+
+**webpack.config.js**
+
+```js
+module.exports = {
+  module: {
+    parser: {
+      asset: {
+        // 资产模块的 parser 选项
+      },
+      'asset/inline': {
+        // 该模块类型尚不支持 parser 选项
+      },
+      'asset/resource': {
+        // 同上
+      },
+      'asset/source': {
+        // 同上
+      },
+      javascript: {
+        // javascript 模块的解析器选项
+        // 例如，启用解析 require.ensure 语法的功能
+        requireEnsure: true,
+      },
+      'javascript/auto': {
+        // 同上
+      },
+      'javascript/dynamic': {
+        // 同上
+      },
+      'javascript/esm': {
+        // 同上
+      },
+      // 其他...
+    },
+  },
+};
+```
+
+### module.parser.javascript {#moduleparserjavascript}
+
+JavaScript parser 的配置项。
+
+```js
+module.exports = {
+  module: {
+    parser: {
+      javascript: {
+        // ...
+        commonjsMagicComments: true,
+      },
+    },
+  },
+};
+```
+
+允许在 [`Rule.parser`](/configuration/module/#ruleparser) 中配置这些选项。也可以是特定模块。
+
+#### module.parser.javascript.commonjsMagicComments {#module-parser-javascript-commonjs-magic-comments}
+
+为 CommonJS 启用 [魔法注释](/api/module-methods/#magic-comments)。
+
+- 类型：`boolean`
+- 可用版本：5.17.0+
+- 示例：
+  ```js
+  module.exports = {
+    module: {
+      parser: {
+        javascript: {
+          commonjsMagicComments: true,
+        },
+      },
+    },
+  };
+  ```
+
+请注意，目前只支持 `webpackIgnore` 注释：
+
+```js
+const x = require(/* webpackIgnore: true */ 'x');
+```
+
+#### module.parser.javascript.url {#module.parser.javascript.url}
+
+启用 `new URL()` 语法解析。
+
+- 类型：`boolean = true` | `'relative'`
+- 示例:
+  ```js
+  module.exports = {
+    module: {
+      parser: {
+        javascript: {
+          url: false, // disable parsing of `new URL()` syntax
+        },
+      },
+    },
+  };
+  ```
+
+自 webpack <Badge text='5.23.0' /> 起，`module.parser.javascript.url` 的 `'relative'` 值可用。当使用 `'relative'` 时，webpack 将为 `new URL()` 语法生成相对的 URL，即结果 URL 中不包含根 URL：
+
+```
+<!-- with 'relative' -->
+<img src='c43188443804f1b1f534.svg' />
+
+<!-- without 'relative' -->
+<img src='file:///path/to/project/dist/c43188443804f1b1f534.svg' />
+```
+
+1. 当服务器不知道根 URL 时，这对 SSR（服务端渲染）很有用（而且可用节省一些字节）。为了使其相同，它也必须用于客户端构建。
+2. 这也适用于 SSG（静态网站生成器），mini-css-plugin 和 html-plugin 等通常需要进行服务端渲染。
 
 ## `module.noParse` {#modulenoparse}
 
 `RegExp` `[RegExp]` `function(resource)` `string` `[string]`
 
-防止 webpack 解析那些任何与给定正则表达式相匹配的文件。忽略的文件中 __不应该含有__ `import`, `require`, `define` 的调用，或任何其他导入机制。忽略大型的 library 可以提高构建性能。
+防止 webpack 解析那些任何与给定正则表达式相匹配的文件。忽略的文件中 **不应该含有** `import`, `require`, `define` 的调用，或任何其他导入机制。忽略大型的 library 可以提高构建性能。
 
-__webpack.config.js__
+**webpack.config.js**
 
 ```javascript
 module.exports = {
   //...
   module: {
     noParse: /jquery|lodash/,
-  }
+  },
 };
 ```
 
@@ -46,8 +212,8 @@ module.exports = {
 module.exports = {
   //...
   module: {
-    noParse: (content) => /jquery|lodash/.test(content)
-  }
+    noParse: (content) => /jquery|lodash/.test(content),
+  },
 };
 ```
 
@@ -57,17 +223,17 @@ module.exports = {
 
 缓存模块请求的解析。`module.unsafeCache` 包含如下几个默认值：
 
-- 如果 [`cache`](/configuration/other-options/#cache) 未被启用，则默认值为 `false`。
-- 如果 [`cache`](/configuration/other-options/#cache) 被启用，并且此模块的来自 node_modules，则值为 `true`，否则为 `false`。
+- 如果 [`cache`](/configuration/cache) 未被启用，则默认值为 `false`。
+- 如果 [`cache`](/configuration/cache) 被启用，并且此模块的来自 node_modules，则值为 `true`，否则为 `false`。
 
-__webpack.config.js__
+**webpack.config.js**
 
 ```javascript
 module.exports = {
   //...
   module: {
     unsafeCache: false,
-  }
+  },
 };
 ```
 
@@ -80,13 +246,11 @@ W> 在 webpack 4 中其默认值为 `true`。
 创建模块时，匹配请求的[规则](#rule)数组。这些规则能够修改模块的创建方式。
 这些规则能够对模块(module)应用 loader，或者修改解析器(parser)。
 
-
 ## Rule {#rule}
 
 `object`
 
 每个规则可以分为三部分 - 条件(condition)，结果(result)和嵌套规则(nested rule)。
-
 
 ### Rule 条件 {#rule-conditions}
 
@@ -96,7 +260,7 @@ W> 在 webpack 4 中其默认值为 `true`。
 
 2. issuer: 请求者的文件绝对路径。是导入时的位置。
 
-__例如:__ 从 `app.js` `导入 './style.css'`，resource 是 `/path/to/style.css`. issuer 是 `/path/to/app.js`。
+**例如：** 从 `app.js` `导入 './style.css'`，resource 是 `/path/to/style.css`. issuer 是 `/path/to/app.js`。
 
 在规则中，属性 [`test`](#rule-test), [`include`](#rule-include), [`exclude`](#rule-exclude) 和 [`resource`](#rule-resource) 对 resource 匹配，并且属性 [`issuer`](#rule-issuer) 对 issuer 匹配。
 
@@ -104,9 +268,8 @@ __例如:__ 从 `app.js` `导入 './style.css'`，resource 是 `/path/to/style.c
 
 W> 小心！resource 是文件的 _解析_ 路径，这意味着符号链接的资源是真正的路径，_而不是_ 符号链接位置。
 在使用工具来符号链接包的时候（如 `npm link`）比较好记，像 `/node_modules/` 等常见条件可能会不小心错过符号链接的文件。
-注意，可以通过 [`resolve.symlinks`](/configuration/resolve#resolve-symlinks) 
+注意，可以通过 [`resolve.symlinks`](/configuration/resolve#resolve-symlinks)
 关闭符号链接解析（以便将资源解析为符号链接路径）。
-
 
 ### Rule 结果 {#rule-results}
 
@@ -125,7 +288,6 @@ W> 小心！resource 是文件的 _解析_ 路径，这意味着符号链接的�
 
 [`parser`](#rule-parser) 属性会影响 parser 选项。
 
-
 ## 嵌套的 Rule {#nested-rules}
 
 可以使用属性 [`rules`](#rule-rules) 和 [`oneOf`](#rule-oneof) 指定嵌套规则。
@@ -137,7 +299,6 @@ W> 小心！resource 是文件的 _解析_ 路径，这意味着符号链接的�
 1. 父规则
 2. [`rules`](#rulerules)
 3. [`oneOf`](#ruleoneof)
-
 
 ## `Rule.enforce` {#ruleenforce}
 
@@ -151,9 +312,9 @@ W> 小心！resource 是文件的 _解析_ 路径，这意味着符号链接的�
 
 所有一个接一个地进入的 loader，都有两个阶段：
 
-1. __Pitching__ 阶段: loader 上的 pitch 方法，按照 `后置(post)、行内(normal)、普通(inline)、前置(pre)` 的顺序调用。更多详细信息，请查看 [Pitching Loader](/api/loaders/#pitching-loader)。
-2. __Normal__ 阶段: loader 上的 常规方法，按照 `前置(pre)、行内(normal)、普通(inline)、后置(post)` 的顺序调用。模块源码的转换，
-发生在这个阶段。
+1. **Pitching** 阶段: loader 上的 pitch 方法，按照 `后置(post)、行内(inline)、普通(normal)、前置(pre)` 的顺序调用。更多详细信息，请查看 [Pitching Loader](/api/loaders/#pitching-loader)。
+2. **Normal** 阶段: loader 上的 常规方法，按照 `前置(pre)、普通(normal)、行内(inline)、后置(post)` 的顺序调用。模块源码的转换，
+   发生在这个阶段。
 
 所有普通 loader 可以通过在请求中加上 `!` 前缀来忽略（覆盖）。
 
@@ -161,36 +322,33 @@ W> 小心！resource 是文件的 _解析_ 路径，这意味着符号链接的�
 
 所有普通，后置和前置 loader 可以通过在请求中加上 `!!` 前缀来忽略（覆盖）。
 
-``` javascript
+```javascript
 // 禁用普通 loaders
 import { a } from '!./file1.js';
 
 // 禁用前置和普通 loaders
-import { b } from  '-!./file2.js';
+import { b } from '-!./file2.js';
 
 // 禁用所有的 laoders
-import { c } from  '!!./file3.js';
+import { c } from '!!./file3.js';
 ```
 
-Inline loaders and `!` prefixes should not be used as they are non-standard. They may be use by loader generated code.
-
+不应使用内联 loader 和 `!` 前缀，因为它是非标准的。它们可能会被 loader 生成代码使用。
 
 ## `Rule.exclude` {#ruleexclude}
 
 排除所有符合条件的模块。如果你提供了 `Rule.exclude` 选项，就不能再提供 `Rule.resource`。详细请查看 [`Rule.resource`](#rule-resource) 和 [`Condition.exclude`](#condition)。
 
-
 ## `Rule.include` {#ruleinclude}
 
 引入符合以下任何条件的模块。如果你提供了 `Rule.include` 选项，就不能再提供 `Rule.resource`。详细请查看 [`Rule.resource`](#rule-resource) 和 [`Condition.include`](#condition)。
-
 
 ## `Rule.issuer` {#ruleissuer}
 
 一个[`条件`](#condition)，用来与被发出的 request 对应的模块项匹配。在以下示例中，`a.js` request 的`发出者(issuer)`
 是 index.js 文件的路径。
 
-__index.js__
+**index.js**
 
 ```javascript
 import A from './a.js';
@@ -198,24 +356,62 @@ import A from './a.js';
 
 这个选项可以用来将 loader 应用到一个特定模块或一组模块的依赖中。
 
+## `Rule.issuerLayer` {#ruleissuerlayer}
+
+允许按 issuer 的 layer 进行过滤/匹配。
+
+**webpack.config.js**
+
+```js
+module.exports = {
+  // ...
+  module: {
+    rules: [
+      {
+        issuerLayer: 'other-layer',
+      },
+    ],
+  },
+};
+```
+
+## `Rule.layer` {#rulelayer}
+
+`string`
+
+指定模块应放置在哪个 layer。
+
+**webpack.config.js**
+
+```js
+module.exports = {
+  // ...
+  module: {
+    rules: [
+      {
+        test: /module-layer-change/,
+        layer: 'layer',
+      },
+    ],
+  },
+};
+```
 
 ## `Rule.loader` {#ruleloader}
 
-`Rule.loader` 是 `Rule.use: [ { loader } ]` 的简写。详细请查看 [`Rule.use`](#rule-use) 和 [`UseEntry.loader`](#useentry)。
-
+`Rule.loader` 是 `Rule.use: [ { loader } ]` 的简写。详细请查看 [`Rule.use`](#ruleuse) 和 [`UseEntry.loader`](#useentry)。
 
 ## `Rule.loaders` {#ruleloaders}
 
-W>  由于需要支持 `Rule.use`，此选项 __已废弃__。
+W> 由于需要支持 `Rule.use`，此选项 **已废弃**。
 
-`Rule.loaders` 是 `Rule.use` 的别名。详细请查看 [`Rule.use`](#rule-use)。
-
+`Rule.loaders` 是 `Rule.use` 的别名。详细请查看 [`Rule.use`](#ruleuse)。
 
 ## `Rule.mimetype` {#rulemimetype}
 
 你可以使用 `mimetype` 使 rules 配置与 data 的 uri 进行匹配。
 
-__webpack.config.js__
+**webpack.config.js**
 
 ```js
 module.exports = {
@@ -225,10 +421,10 @@ module.exports = {
       {
         mimetype: 'application/json',
         type: 'json',
-      }
-    ]
-  }
-}
+      },
+    ],
+  },
+};
 ```
 
 mimetype 已默认包含了 `application/json`，`text/javascript`，`application/javascript`，`application/node` 以及 `application/wasm`。
@@ -237,7 +433,7 @@ mimetype 已默认包含了 `application/json`，`text/javascript`，`applicatio
 
 [`规则`](#rule)数组，当规则匹配时，只使用第一个匹配规则。
 
-__webpack.config.js__
+**webpack.config.js**
 
 ```javascript
 module.exports = {
@@ -249,29 +445,27 @@ module.exports = {
         oneOf: [
           {
             resourceQuery: /inline/, // foo.css?inline
-            use: 'url-loader'
+            use: 'url-loader',
           },
           {
             resourceQuery: /external/, // foo.css?external
-            use: 'file-loader'
-          }
-        ]
-      }
-    ]
-  }
+            use: 'file-loader',
+          },
+        ],
+      },
+    ],
+  },
 };
 ```
 
 T> 详情请参阅 [`嵌套规则`](#nested-rules)。
 
-
 ## `Rule.options` / `Rule.query` {#ruleoptions--rulequery}
 
-`Rule.options` 和 `Rule.query` 是 `Rule.use: [ { options } ]` 的简写。详细请查看 [`Rule.use`](#rule-use) 
+`Rule.options` 和 `Rule.query` 是 `Rule.use: [ { options } ]` 的简写。详细请查看 [`Rule.use`](#rule-use)
 和 [`UseEntry.options`](#useentry)。
 
 W> 由于需要支持 `Rule.options`，`UseEntry.options` 以及 `Rule.use`，因此 `Rule.query` 已废弃。
-
 
 ## `Rule.parser` {#ruleparser}
 
@@ -286,7 +480,7 @@ W> 由于需要支持 `Rule.options`，`UseEntry.options` 以及 `Rule.use`，�
 然而，一些解析器(parser)插件可能不光只接收一个布尔值。例如，内部的 `NodeStuffPlugin` 插件，可以接收一个对象，而不是 `true`，
 来为特定的规则添加额外的选项。
 
-__示例__（默认的插件解析器选项）：
+**示例**（默认的插件解析器选项）：
 
 ```js-with-links
 module.exports = {
@@ -328,7 +522,7 @@ module.exports = {
 如果一个模块源码大小小于 `maxSize`，那么模块会被作为一个 Base64 编码的字符串注入到包中，
 否则模块文件会被生成到输出的目标目录中。
 
-__webpack.config.js__
+**webpack.config.js**
 
 ```js
 module.exports = {
@@ -339,19 +533,19 @@ module.exports = {
         //...
         parser: {
           dataUrlCondition: {
-            maxSize: 4 * 1024
-          }
-        }
-      }
-    ]
-  }
-}
+            maxSize: 4 * 1024,
+          },
+        },
+      },
+    ],
+  },
+};
 ```
 
 当提供函数时，返回 `true` 值时告知 webpack 将模块作为一个 Base64 编码的字符串注入到包中，
 否则模块文件会被生成到输出的目标目录中。
 
-__webpack.config.js__
+**webpack.config.js**
 
 ```js
 module.exports = {
@@ -364,24 +558,26 @@ module.exports = {
           dataUrlCondition: (source, { filename, module }) => {
             const content = source.toString();
             return content.includes('some marker');
-          }
-        }
-      }
-    ]
-  }
-}
+          },
+        },
+      },
+    ],
+  },
+};
 ```
 
-## `Rule.generator.dataUrl` {#rulegeneratordataurl}
+## Rule.generator {#rulegenerator}
+
+### Rule.generator.dataUrl {#rulegeneratordataurl}
 
 `object = { encoding string = 'base64' | false, mimetype string = undefined | false }` `function (content, { filename, module }) => string`
 
 当 `Rule.generator.dataUrl` 被用作一个对象，你可以配置两个属性：
 
-- encoding: 当被设置为`'base64'`，模块源码会用 Baes64算法 编码。设置 `encoding` 为 false，会禁用编码。
+- encoding: 当被设置为`'base64'`，模块源码会用 Baes64 算法 编码。设置 `encoding` 为 false，会禁用编码。
 - mimetype: 为数据链接(data URI)设置的一个 mimetype 值。默认根据模块资源后缀设置。
 
-__webpack.config.js__
+**webpack.config.js**
 
 ```js
 module.exports = {
@@ -391,13 +587,15 @@ module.exports = {
       {
         //...
         generator: {
-          encoding: 'base64',
-          mimetype: 'mimetype/png'
-        }
-      }
-    ]
-  }
-}
+          dataUrl: {
+            encoding: 'base64',
+            mimetype: 'mimetype/png',
+          },
+        },
+      },
+    ],
+  },
+};
 ```
 
 当被作为一个函数使用，它必须为每个模块执行且并须返回一个数据链接(data URI)字符串。
@@ -410,60 +608,111 @@ module.exports = {
       {
         //...
         generator: {
-          dataUrl: content => {
+          dataUrl: (content) => {
             const svgToMiniDataURI = require('mini-svg-data-uri');
             if (typeof content !== 'string') {
               content = content.toString();
             }
             return svgToMiniDataURI(content);
-          }
-        }
-      }
-    ]
-  }
-}
+          },
+        },
+      },
+    ],
+  },
+};
 ```
 
-## `Rule.generator.filename` {#rulegeneratorfilename}
+### Rule.generator.emit {#rulegeneratoremit}
+
+配置不从 [Asset Modules](/guides/asset-modules/) 写入资源文件, 你可能会在 SSR 中使用它。
+
+- 类型：`boolean = true`
+- 可用版本：<Badge text='5.25.0+' />
+- 示例：
+
+  ```js
+  module.exports = {
+    // …
+    module: {
+      rules: [
+        {
+          test: /\.png$/i,
+          type: 'asset/resource',
+          generator: {
+            emit: false,
+          },
+        },
+      ],
+    },
+  };
+  ```
+
+### Rule.generator.filename {#rulegeneratorfilename}
 
 对某些特定的规则而言与 [`output.assetModuleFilename`](/configuration/output/#outputassetmodulefilename) 相同. 覆盖了 `output.assetModuleFilename` 选项并且仅与 `asset` 和 `asset/resource` 模块类型一同起作用。
 
-__webpack.config.js__
+**webpack.config.js**
 
 ```js
 module.exports = {
   //...
   output: {
-    assetModuleFilename: 'images/[hash][ext][query]'
+    assetModuleFilename: 'images/[hash][ext][query]',
   },
   module: {
     rules: [
       {
         test: /\.png/,
-        type: 'asset/resource'
+        type: 'asset/resource',
       },
       {
         test: /\.html/,
         type: 'asset/resource',
         generator: {
-          filename: 'static/[hash][ext]'
-        }
-      }
-    ]
-  }
-}
+          filename: 'static/[hash][ext]',
+        },
+      },
+    ],
+  },
+};
+```
+
+### Rule.generator.publicPath {#rulegeneratorpublichpath}
+
+对指定的资源模式指定 `publicPath`。
+
+- 类型：`string | ((pathData: PathData, assetInfo?: AssetInfo) => string)`
+- 可用版本：<Badge text='5.28.0+' />
+
+```js
+module.exports = {
+  //...
+  output: {
+    publicPath: 'static/',
+  },
+  module: {
+    rules: [
+      {
+        test: /\.png$/i,
+        type: 'asset/resource',
+        generator: {
+          publicPath: 'assets/',
+        },
+      },
+    ],
+  },
+};
 ```
 
 ## `Rule.resource` {#ruleresource}
 
 [`条件`](#条件)会匹配 resource。在 [`Rule` 条件](#rule-conditions) 中查阅详情。
 
-
 ## `Rule.resourceQuery` {#ruleresourcequery}
 
-A [`Condition`](#condition) matched with the resource query. This option is used to test against the query section of a request string (i.e. from the question mark onwards). If you were to `import Foo from './foo.css?inline'`, the following condition would match:
+与资源查询相匹配的 [`Condition`](#condition)。此选项用于测试请求字符串的查询部分（即从问号开始）。如果你需要通过 `import Foo from './foo.css?inline'` 导入 Foo，则需符合以下条件：
 
-__webpack.config.js__
+**webpack.config.js**
 
 ```javascript
 module.exports = {
@@ -473,10 +722,10 @@ module.exports = {
       {
         test: /\\.css$/,
         resourceQuery: /inline/,
-        use: 'url-loader'
-      }
-    ]
-  }
+        use: 'url-loader',
+      },
+    ],
+  },
 };
 ```
 
@@ -484,10 +733,10 @@ module.exports = {
 
 `function(input) => string | object`
 
-如果 `Rule.type` 被设置成  `'json'`，那么 `Rules.parser.parse` 选择可能会是一个方法，该方法实现自定义的逻辑，以解析模块的源和并将它转换成 JavaScript `对象`。
-它可能在没有特定加载器的时候，对将 `toml`, `yaml` 和其它非JSON文件导入成导入非常有用：
+如果 `Rule.type` 被设置成 `'json'`，那么 `Rules.parser.parse` 选择可能会是一个方法，该方法实现自定义的逻辑，以解析模块的源和并将它转换成 JavaScript `对象`。
+它可能在没有特定加载器的时候，对将 `toml`, `yaml` 和其它非 JSON 文件导入成导入非常有用：
 
-__webpack.config.js__
+**webpack.config.js**
 
 ```javascript
 const toml = require('toml');
@@ -500,11 +749,11 @@ module.exports = {
         test: /\.toml/,
         type: 'json',
         parser: {
-          parse: toml.parse
-        }
-      }
-    ]
-  }
+          parse: toml.parse,
+        },
+      },
+    ],
+  },
 };
 ```
 
@@ -514,6 +763,27 @@ module.exports = {
 
 T> 详情参阅 [`嵌套规则`](#nested-rules) 。
 
+## Rule.scheme {#rulescheme}
+
+匹配使用的 schema，例如 `data`，`http`。
+
+- 类型：`string | RegExp | ((value: string) => boolean) | RuleSetLogicalConditions | RuleSetCondition[]`
+- 可用：<Badge text='5.38.0+' />
+
+**webpack.config.js**
+
+```js
+module.exports = {
+  module: {
+    rules: [
+      {
+        scheme: 'data',
+        type: 'asset/resource',
+      },
+    ],
+  },
+};
+```
 
 ## `Rule.sideEffects` {#rulesideeffects}
 
@@ -521,11 +791,9 @@ T> 详情参阅 [`嵌套规则`](#nested-rules) 。
 
 表明模块的哪一部份包含副作用。详情参阅 [Tree Shaking](/guides/tree-shaking/#mark-the-file-as-side-effect-free)。
 
-
 ## `Rule.test` {#ruletest}
 
 引入所有通过断言测试的模块。如果你提供了一个 `Rule.test` 选项，就不能再提供 `Rule.resource`。详细请查看 [`Rule.resource`](#rule-resource) 和 [`Condition.test`](#condition)。
-
 
 ## `Rule.type` {#ruletype}
 
@@ -537,7 +805,7 @@ T> 详情参阅 [`嵌套规则`](#nested-rules) 。
 通过自定义 loader 加载一个 `.json` 文件，你会需要将 `type` 设置为 `javascript/auto` 以绕过 webpack 内置的 json 导入。
 （详参[v4.0 更新日志](https://github.com/webpack/webpack/releases/tag/v4.0.0)）
 
-__webpack.config.js__
+**webpack.config.js**
 
 ```javascript
 module.exports = {
@@ -548,10 +816,10 @@ module.exports = {
       {
         test: /\\.json$/,
         type: 'javascript/auto',
-        loader: 'custom-json-loader'
-      }
-    ]
-  }
+        loader: 'custom-json-loader',
+      },
+    ],
+  },
 };
 ```
 
@@ -561,7 +829,7 @@ module.exports = {
 
 `[UseEntry]` `function(info)`
 
-__`[UseEntry]`__
+**`[UseEntry]`**
 
 `Rule.use` 可以是一个应用于模块的 [UseEntries](#useentry) 数组。每个入口(entry)指定使用一个 loader。
 
@@ -569,7 +837,7 @@ __`[UseEntry]`__
 
 Loaders 可以通过传入多个 loaders 以达到链式调用的效果，它们会从右到左被应用（从最后到最先配置）。
 
-__webpack.config.js__
+**webpack.config.js**
 
 ```javascript
 module.exports = {
@@ -583,23 +851,23 @@ module.exports = {
           {
             loader: 'css-loader',
             options: {
-              importLoaders: 1
-            }
+              importLoaders: 1,
+            },
           },
           {
             loader: 'less-loader',
             options: {
-              noIeCompat: true
-            }
-          }
-        ]
-      }
-    ]
-  }
+              noIeCompat: true,
+            },
+          },
+        ],
+      },
+    ],
+  },
 };
 ```
 
-__`function(info)`__
+**`function(info)`**
 
 `Rule.use` 也可以是一个函数，接受对象参数，描述被加载的模块，而且必须
 返回 `UseEntry` 元素的数组。
@@ -613,7 +881,7 @@ __`function(info)`__
 
 相同的作为数组的快捷方式可以用作返回值（如 `use: [ 'style-loader' ]`）。
 
-__webpack.config.js__
+**webpack.config.js**
 
 ```javascript
 module.exports = {
@@ -621,22 +889,26 @@ module.exports = {
   module: {
     rules: [
       {
-        use: (info) => ([
+        use: (info) => [
           {
-            loader: 'custom-svg-loader'
+            loader: 'custom-svg-loader',
           },
           {
             loader: 'svgo-loader',
             options: {
-              plugins: [{
-                cleanupIDs: { prefix: basename(info.resource) }
-              }]
-            }
-          }
-        ])
-      }
-    ]
-  }
+              plugins: [
+                {
+                  cleanupIDs: {
+                    prefix: basename(info.resource),
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    ],
+  },
 };
 ```
 
@@ -649,63 +921,63 @@ W> `Rule.resolve` 从 webpack 4.36.1 起可用
 模块解析可以在模块层被配置。[resolve 配置页面](/configuration/resolve/#resolve)可查看所有可用的配置。
 所有被应用的 resolve 选项被更高层级的[resolve](/configuration/resolve/#resolve)配置合并。
 
-例如，假设我们有一个入口文件在 `./src/index.js`, `./src/footer/default.js` 和一个  `./src/footer/overridden.js`，
+例如，假设我们有一个入口文件在 `./src/index.js`, `./src/footer/default.js` 和一个 `./src/footer/overridden.js`，
 用以论证模块层级的解析。
 
-__./src/index.js__
+**./src/index.js**
 
 ```javascript
 import footer from 'footer';
 console.log(footer);
 ```
 
-__./src/footer/default.js__
+**./src/footer/default.js**
 
 ```javascript
 export default 'default footer';
 ```
 
-__./src/footer/overridden.js__
+**./src/footer/overridden.js**
 
 ```javascript
 export default 'overridden footer';
 ```
 
-__webpack.js.org__
+**webpack.js.org**
 
 ```javascript
 module.exports = {
   resolve: {
     alias: {
-      'footer': './footer/default.js'
-    }
-  }
+      footer: './footer/default.js',
+    },
+  },
 };
 ```
 
-当用该配置创建一个包，`console.log(footer)` 会输出 'default footer'。让我们为 `.js` 文件设置 `Rule.resolve`，以及 
+当用该配置创建一个包，`console.log(footer)` 会输出 'default footer'。让我们为 `.js` 文件设置 `Rule.resolve`，以及
 `footer` 作为 `overridden.js` 的别名。
 
-__webpack.js.org__
+**webpack.js.org**
 
 ```javascript
 module.exports = {
   resolve: {
     alias: {
-      'footer': './footer/default.js'
-    }
+      footer: './footer/default.js',
+    },
   },
   module: {
     rules: [
       {
         resolve: {
           alias: {
-            'footer': './footer/overridden.js'
-          }
-        }
-      }
-    ]
-  }
+            footer: './footer/overridden.js',
+          },
+        },
+      },
+    ],
+  },
 };
 ```
 
@@ -717,7 +989,7 @@ module.exports = {
 
 启用后，你若在 `.mjs` 文件或其他 `.js` 文件中导入模块，并且它们最近的 `package.json` 中包含 `"type"` 字段，其值为 `"module"`时，你应为此文件提供扩展名，否则 webpack 会提示 `Module not found` 的错误且编译失败。并且 webpack 不会解析 [`resolve.mainFiles`](/configuration/resolve/#resolvemainfiles) 中定义的文件目录，你必须自己指定文件名。
 
-__webpack.config.js__
+**webpack.config.js**
 
 ```js
 module.exports = {
@@ -727,11 +999,11 @@ module.exports = {
       {
         test: /\.m?js$/,
         resolve: {
-          fullySpecified: false // disable the behaviour
-        }
-      }
-    ]
-  }
+          fullySpecified: false, // disable the behaviour
+        },
+      },
+    ],
+  },
 };
 ```
 
@@ -753,7 +1025,7 @@ W> `resolve.fullySpecified` 不影响来自 [mainFields](/configuration/resolve/
 
 `{ not: [Condition] }`：必须排除这个条件
 
-__示例:__
+**示例:**
 
 ```javascript
 const path = require('path');
@@ -766,20 +1038,19 @@ module.exports = {
         test: /\\.css$/,
         include: [
           path.resolve(__dirname, 'app/styles'),
-          path.resolve(__dirname, 'vendor/styles')
-        ]
-      }
-    ]
-  }
+          path.resolve(__dirname, 'vendor/styles'),
+        ],
+      },
+    ],
+  },
 };
 ```
-
 
 ## `UseEntry` {#useentry}
 
 `object` `function(info)`
 
-__`object`__
+**`object`**
 
 必须有一个 `loader` 属性是字符串。它使用 loader 解析选项（[resolveLoader](/configuration/resolve#resolveloader)），相对于配置中的 [`context`](/configuration/entry-context#context) 来解析。
 
@@ -794,7 +1065,7 @@ __`object`__
 如果选项对象不被字符化（例如循环 JSON），它也会中断。因此，你可以在选项对象使用 `ident` 属性，
 作为唯一标识符。
 
-__webpack.config.js__
+**webpack.config.js**
 
 ```javascript
 module.exports = {
@@ -804,18 +1075,17 @@ module.exports = {
       {
         loader: 'css-loader',
         options: {
-          modules: true
-        }
-      }
-    ]
-  }
+          modules: true,
+        },
+      },
+    ],
+  },
 };
 ```
 
-__`function(info)`__
+**`function(info)`**
 
-`UseEntry` 也可以是一个函数，接受对象参数，描述被加载的模块，而且必须返回一个参数对象。
-这可用于按模块更改 loader 选项。
+`UseEntry` 也可以是一个函数，接受对象参数，描述被加载的模块，而且必须返回一个参数对象。这可用于按模块更改 loader 选项。
 
 `info` 对象参数有以下的字段：
 
@@ -824,7 +1094,7 @@ __`function(info)`__
 - `realResource`: 总会是被加载模块的路径
 - `resource`: 被加载的模块路径，它常常与 `realResource` 相等，只有当资源名称被 request 字符串中的 `!=!` 覆盖时才不相等
 
-__webpack.config.js__
+**webpack.config.js**
 
 ```javascript
 module.exports = {
@@ -834,26 +1104,27 @@ module.exports = {
       {
         loader: 'file-loader',
         options: {
-          outputPath: 'svgs'
-        }
+          outputPath: 'svgs',
+        },
       },
       (info) => ({
         loader: 'svgo-loader',
         options: {
-          plugins: [{
-            cleanupIDs: { prefix: basename(info.resource) }
-          }]
-        }
-      })
-    ]
-  }
+          plugins: [
+            {
+              cleanupIDs: { prefix: basename(info.resource) },
+            },
+          ],
+        },
+      }),
+    ],
+  },
 };
 ```
 
-
 ## 模块上下文(Module Contexts) {#module-contexts}
 
-> 避免使用这些选项，因为它们 __已废弃__，并将很快删除。
+> 避免使用这些选项，因为它们 **已废弃**，并将很快删除。
 
 这些选项描述了当遇到动态依赖时，创建上下文的默认设置。
 
@@ -865,7 +1136,7 @@ module.exports = {
 
 以下是其[默认值](https://github.com/webpack/webpack/blob/master/lib/config/defaults.js)的可用选项
 
-__webpack.config.js__
+**webpack.config.js**
 
 ```javascript
 module.exports = {
@@ -882,8 +1153,8 @@ module.exports = {
     wrappedContextCritical: false,
     wrappedContextRecursive: true,
     wrappedContextRegExp: /.*/,
-    strictExportPresence: false // since webpack 2.3.0
-  }
+    strictExportPresence: false, // since webpack 2.3.0
+  },
 };
 ```
 

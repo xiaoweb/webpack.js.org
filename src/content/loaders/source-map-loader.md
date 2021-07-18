@@ -3,6 +3,9 @@ title: source-map-loader
 source: https://raw.githubusercontent.com/webpack-contrib/source-map-loader/master/README.md
 edit: https://github.com/webpack-contrib/source-map-loader/edit/master/README.md
 repo: https://github.com/webpack-contrib/source-map-loader
+translators:
+  - mercurywang
+  - QC-L
 ---
 
 
@@ -28,13 +31,13 @@ npm i -D source-map-loader
 
 添加 plugin 至 `webpack` 配置。例：
 
-**file.js**
+__file.js__
 
 ```js
-import css from 'file.css';
+import css from "file.css";
 ```
 
-**webpack.config.js**
+__webpack.config.js__
 
 ```js
 module.exports = {
@@ -42,8 +45,8 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        enforce: 'pre',
-        use: ['source-map-loader'],
+        enforce: "pre",
+        use: ["source-map-loader"],
       },
     ],
   },
@@ -64,7 +67,7 @@ module.exports = {
 
 |                          选项名                           |     类型     |   默认值   | 描述                                    |
 | :-----------------------------------------------------: | :----------: | :---------: | :--------------------------------------------- |
-| **[`filterSourceMappingUrl`](#filtersourcemappingurl)** | `{Function}` | `undefined` | 允许控制 `SourceMappingURL` 的行为 |
+| __[`filterSourceMappingUrl`](#filtersourcemappingurl)__ | `{Function}` | `undefined` | 允许控制 `SourceMappingURL` 的行为 |
 
 ### filterSourceMappingUrl {#filter-source-mapping-url}
 
@@ -81,7 +84,7 @@ module.exports = {
 
 示例配置：
 
-**webpack.config.js**
+__webpack.config.js__
 
 ```js
 module.exports = {
@@ -89,10 +92,10 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        enforce: 'pre',
+        enforce: "pre",
         use: [
           {
-            loader: 'source-map-loader',
+            loader: "source-map-loader",
             options: {
               filterSourceMappingUrl: (url, resourcePath) => {
                 if (/broker-source-map-url\.js$/i.test(url)) {
@@ -100,7 +103,7 @@ module.exports = {
                 }
 
                 if (/keep-source-mapping-url\.js$/i.test(resourcePath)) {
-                  return 'skip';
+                  return "skip";
                 }
 
                 return true;
@@ -120,7 +123,7 @@ module.exports = {
 
 忽略警告可以使用以下配置：
 
-**webpack.config.js**
+__webpack.config.js__
 
 ```js
 module.exports = {
@@ -128,14 +131,16 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        enforce: 'pre',
-        use: ['source-map-loader'],
+        enforce: "pre",
+        use: ["source-map-loader"],
       },
     ],
   },
   ignoreWarnings: [/Failed to parse source map/],
 };
 ```
+
+欲了解 `ignoreWarnings` 的更多信息，请查阅[此文](/configuration/other-options/#ignorewarnings)。
 
 ## 贡献 {#contributing}
 
@@ -150,7 +155,7 @@ module.exports = {
 [npm]: https://img.shields.io/npm/v/source-map-loader.svg
 [npm-url]: https://npmjs.com/package/source-map-loader
 [node]: https://img.shields.io/node/v/source-map-loader.svg
-[node-url]: https://nodejs.org/
+[node-url]: https://nodejs.org
 [deps]: https://david-dm.org/webpack-contrib/source-map-loader.svg
 [deps-url]: https://david-dm.org/webpack-contrib/source-map-loader
 [tests]: https://github.com/webpack-contrib/source-map-loader/workflows/source-map-loader/badge.svg

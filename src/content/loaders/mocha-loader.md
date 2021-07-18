@@ -3,6 +3,9 @@ title: mocha-loader
 source: https://raw.githubusercontent.com/webpack-contrib/mocha-loader/master/README.md
 edit: https://github.com/webpack-contrib/mocha-loader/edit/master/README.md
 repo: https://github.com/webpack-contrib/mocha-loader
+translators:
+  - applegz
+  - jacob-lcs
 ---
 
 
@@ -16,17 +19,17 @@ repo: https://github.com/webpack-contrib/mocha-loader
 
 
 
-Allows [Mocha](https://mochajs.org/) tests to be loaded and run via webpack.
+允许 [Mocha](https://mochajs.org/) 通过 webpack 加载并运行。
 
-## Getting Started {#getting-started}
+## 快速开始 {#getting-started}
 
-To begin, you'll need to install `mocha-loader` and `mocha`:
+首先，你需要先安装 `mocha-loader` 与 `mocha`：
 
 ```console
 npm install --save-dev mocha-loader mocha
 ```
 
-Then add the plugin to your `webpack` config. For example:
+然后将该 loader 添加到 `webpack` 的配置中去，例如：
 
 **file.js**
 
@@ -55,19 +58,19 @@ module.exports = {
 };
 ```
 
-And run `webpack` via your preferred method.
+接着使用你习惯的方式运行 `webpack`。
 
-Alternative usage (without configuration):
+另一种使用方法（无需配置）：
 
 ```js
 import test from 'mocha-loader!./test.js';
 ```
 
-No options for loader.
+无 loader 选项。
 
-## Examples {#examples}
+## 示例 {#examples}
 
-### Basic {#basic}
+### 基础 {#basic}
 
 **file.js**
 
@@ -97,9 +100,9 @@ describe('Test', () => {
 });
 ```
 
-## Contributing {#contributing}
+## 贡献 {#contributing}
 
-Please take a moment to read our contributing guidelines if you haven't yet done so.
+如果你还没有看过我们的贡献者指南请先花点时间看一下。
 
 [CONTRIBUTING](https://github.com/webpack-contrib/mocha-loader/blob/master/.github/CONTRIBUTING.md)
 
@@ -110,7 +113,7 @@ Please take a moment to read our contributing guidelines if you haven't yet done
 [npm]: https://img.shields.io/npm/v/mocha-loader.svg
 [npm-url]: https://npmjs.com/package/mocha-loader
 [node]: https://img.shields.io/node/v/mocha-loader.svg
-[node-url]: https://nodejs.org/
+[node-url]: https://nodejs.org
 [deps]: https://david-dm.org/webpack-contrib/mocha-loader.svg
 [deps-url]: https://david-dm.org/webpack-contrib/mocha-loader
 [tests]: https://github.com/webpack-contrib/mocha-loader/workflows/mocha-loader/badge.svg

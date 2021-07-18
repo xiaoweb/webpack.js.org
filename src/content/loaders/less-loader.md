@@ -3,6 +3,10 @@ title: less-loader
 source: https://raw.githubusercontent.com/webpack-contrib/less-loader/master/README.md
 edit: https://github.com/webpack-contrib/less-loader/edit/master/README.md
 repo: https://github.com/webpack-contrib/less-loader
+translators:
+  - phobal
+  - jacob-lcs
+  - QC-L
 ---
 
 
@@ -35,8 +39,13 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.less$/,
-        loader: 'less-loader', // 将 Less 文件编译为 CSS 文件
+        test: /\.less$/i,
+        loader: [
+          // compiles Less to CSS
+          'style-loader',
+          'css-loader',
+          'less-loader',
+        ],
       },
     ],
   },
@@ -52,7 +61,8 @@ module.exports = {
 |    **[`lessOptions`](#lessoptions)**    | `{Object\|Function}` | `{ relativeUrls: true }` | Less 的可选项。                                |
 |     **[`additionalData`](#additionaldata)**     | `{String\|Function}` |       `undefined`        | 在入口文件起始或末尾添加 Less 代码。  |
 |      **[`sourceMap`](#sourcemap)**      |     `{Boolean}`      |    `compiler.devtool`    | 是否生成 source map。       |
-| **[`implementation`](#implementation)** |      `{Object}`      |          `less`          | 配置 Less 使用的实现库                |
+| **[`webpackImporter`](#webpackimporter)** |     `{Boolean}`      |          `true`          | 是否启用默认的 webpack importer。         |
+| **[`implementation`](#implementation)** |      `{Object\|String}`      |          `less`          | 配置 Less 使用的实现库                |
 
 ### `lessOptions` {#lessoptions}
 
@@ -72,7 +82,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.less$/,
+        test: /\.less$/i,
         use: [
           {
             loader: 'style-loader',
@@ -104,7 +114,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.less$/,
+        test: /\.less$/i,
         use: [
           'style-loader',
           'css-loader',
@@ -154,7 +164,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.less$/,
+        test: /\.less$/i,
         use: [
           'style-loader',
           'css-loader',
@@ -173,12 +183,14 @@ module.exports = {
 
 #### `Function` {#function}
 
+##### Sync
+
 ```js
 module.exports = {
   module: {
     rules: [
       {
-        test: /\.less$/,
+        test: /\.less$/i,
         use: [
           'style-loader',
           'css-loader',
@@ -187,6 +199,40 @@ module.exports = {
             options: {
               additionalData: (content, loaderContext) => {
                 // 更多可用的属性见 https://webpack.js.org/api/loaders/
+                const { resourcePath, rootContext } = loaderContext;
+                const relativePath = path.relative(rootContext, resourcePath);
+
+                if (relativePath === 'styles/foo.less') {
+                  return '@value: 100px;' + content;
+                }
+
+                return '@value: 200px;' + content;
+              },
+            },
+          },
+        ],
+      },
+    ],
+  },
+};
+```
+
+##### Async
+
+```js
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.less$/i,
+        use: [
+          'style-loader',
+          'css-loader',
+          {
+            loader: 'less-loader',
+            options: {
+              additionalData: async (content, loaderContext) => {
+                // More information about available properties https://webpack.js.org/api/loaders/
                 const { resourcePath, rootContext } = loaderContext;
                 const relativePath = path.relative(rootContext, resourcePath);
 
@@ -274,6 +320,68 @@ module.exports = {
 };
 ```
 
+### `implementation` {#implementation}
+
+类型：`Object | String`
+
+> ⚠ less-loader 已兼容 Less 3 和 Less 4。
+
+特殊的 `implementation` 选项决定使用 Less 的哪个实现。重载本地安装的 `less` 的 `peerDependency` 版本。
+
+**此选项只对下游的工具作者有效，以便于 Less 3 到 Less 4 的过渡。**
+
+#### Object
+
+**webpack.config.js**
+
+```js
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.less$/i,
+        use: [
+          'style-loader',
+          'css-loader',
+          {
+            loader: 'less-loader',
+            options: {
+              implementation: require('less'),
+            },
+          },
+        ],
+      },
+    ],
+  },
+};
+```
+
+#### String {#string}
+
+**webpack.config.js**
+
+```js
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.less$/i,
+        use: [
+          'style-loader',
+          'css-loader',
+          {
+            loader: 'less-loader',
+            options: {
+              implementation: require.resolve('less'),
+            },
+          },
+        ],
+      },
+    ],
+  },
+};
+```
+
 ## 示例 {#examples}
 
 ### 常规用法 {#normal-usage}
@@ -287,7 +395,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.less$/,
+        test: /\.less$/i,
         use: [
           {
             loader: 'style-loader', // 从 JS 中创建样式节点
@@ -305,7 +413,7 @@ module.exports = {
 };
 ```
 
-不幸的是，Less 并没有将所有选项 1 对 1 映射为 camelCase（驼峰值）。如有疑问，请[检查执行文件]（https://github.com/less/less.js/blob/3.x/bin/lessc）并搜索破折号选项。
+不幸的是，Less 并没有将所有选项 1 对 1 映射为 camelCase（驼峰值）。如有疑问，请[检查执行文件](https://github.com/less/less.js/blob/3.x/bin/lessc)并搜索破折号选项。
 
 ### Source maps {#source-maps}
 
@@ -313,13 +421,13 @@ module.exports = {
 
 **webpack.config.js**
 
-```javascript
+```js
 module.exports = {
   devtool: 'source-map', // 任何类似于 "source-map" 的  devtool 值都可以
   module: {
     rules: [
       {
-        test: /\.less$/,
+        test: /\.less$/i,
         use: [
           'style-loader',
           {
@@ -349,21 +457,55 @@ module.exports = {
 
 ### 导入 {#imports}
 
-从 `less-loader` v4 版本起，你有两种解析器可用，Less 内置解析器和 webpack 解析器。默认情况使用 webpack 解析器。
+首先我们会尝试使用内置 `less` 解析逻辑，然后再使用 `webpack` 解析逻辑（alias 和 `~`）。
 
 #### webpack 解析器 {#webpack-resolver}
 
-webpack 提供了一种 [解析文件的高级机制](/configuration/resolve/)。`less-loader` 作为 Less 的插件，该插件将所有的查询结果传递给 webpack 解析器，因此你可以从 `node_modules` 中导入 Less 模块，只需要在它们前面加上 `~` 符号告诉 webpack 从 [`modules`](/configuration/resolve/#resolvemodules) 中去查找。
+`webpack` 提供了一种 [解析文件的高级机制](/configuration/resolve/)。如果 `less` 不能解析 `@import` 的话，`less-loader` 作为 Less 的插件将所有的查询结果传递给 webpack 解析器。因此你可以从 `node_modules` 中导入 Less 模块。
 
 ```css
-@import '~bootstrap/less/bootstrap';
+@import "bootstrap/less/bootstrap";
+```
+
+`~` 用法已被废弃，可以从代码中删除（**我们建议这么做**），但是我们会因为一些历史原因一直支持这种写法。
+为什么你可以移除它呢？loader 首先会尝试以相对路径解析 `@import`，如果它不能被解析，loader 将会尝试在 [`node_modules`](/configuration/resolve/#resolvemodules) 中解析 `@import`。
+只要在包名前加上 `~`，告诉 webpack 在 [`modules`](/configuration/resolve/#resolvemodules) 中进行查找。
+
+```css
+@import "~bootstrap/less/bootstrap";
+```
+
+可以通过 [`resolve.byDependency`](/configuration/resolve/#resolvebydependency) 修改默认解析器配置：
+
+**webpack.config.js**
+
+```js
+module.exports = {
+  devtool: 'source-map', // "source-map" 类的 devtool 都是可以的
+  module: {
+    rules: [
+      {
+        test: /\.less$/i,
+        use: ['style-loader', 'css-loader', 'less-loader'],
+      },
+    ],
+  },
+  resolve: {
+    byDependency: {
+      // 更多的配置项可以在这里找到 https://webpack.js.org/configuration/resolve/
+      less: {
+        mainFiles: ['custom'],
+      },
+    },
+  },
+};
 ```
 
 在其前面加上 `〜` 很关键，因为 `〜/` 会解析到根目录。webpack 需要区分 `bootstrap` 和 `〜bootstrap`，因为 CSS 和 Less 文件没有用于导入相对路径文件的特殊语法。写 `@import“ file”` 等同于 `@import“ ./file”;`
 
-#### Less 解析器 {#less-resolver}
+#### Less Resolver {#less-resolver}
 
-如果指定 `paths` 选项，将从指定的 `paths` 中搜索模块，这是 Less 的默认行为。`paths` 应该是具有绝对路径的数组。
+如果指定 `paths` 选项，将从指定的 `paths` 中搜索模块，这是 `less` 的默认行为。`paths` 应该是具有绝对路径的数组：
 
 **webpack.config.js**
 
@@ -372,7 +514,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.less$/,
+        test: /\.less$/i,
         use: [
           {
             loader: 'style-loader',
@@ -400,8 +542,9 @@ module.exports = {
 想要使用 [插件](http://lesscss.org/usage/#plugins)，只需要简单设置下 `plugins` 选项即可，
 具体配置如下：
 
+**webpack.config.js**
+
 ```js
-// webpack.config.js
 const CleanCSSPlugin = require('less-plugin-clean-css');
 
 module.exports = {
@@ -420,13 +563,13 @@ module.exports = {
 };
 ```
 
-> ℹ️ 使用 `less.webpackLoaderContext` 属性可以访问自定义插件中的 [loader context](/api/loaders/#the-loader-context)。
+> ℹ️ 使用 `pluginManager.webpackLoaderContext` 属性可以访问自定义插件中的 [loader context](/api/loaders/#the-loader-context)。
 
 ```js
 module.exports = {
   install: function (less, pluginManager, functions) {
     functions.add('pi', function () {
-      // Loader context is available in `less.webpackLoaderContext`
+      // Loader context is available in `pluginManager.webpackLoaderContext`
 
       return Math.PI;
     });
@@ -460,7 +603,7 @@ Less 和 [CSS modules](https://github.com/css-modules/css-modules) 有一个已�
 [npm]: https://img.shields.io/npm/v/less-loader.svg
 [npm-url]: https://npmjs.com/package/less-loader
 [node]: https://img.shields.io/node/v/less-loader.svg
-[node-url]: https://nodejs.org/
+[node-url]: https://nodejs.org
 [deps]: https://david-dm.org/webpack-contrib/less-loader.svg
 [deps-url]: https://david-dm.org/webpack-contrib/less-loader
 [tests]: https://github.com/webpack-contrib/less-loader/workflows/less-loader/badge.svg

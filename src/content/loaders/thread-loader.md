@@ -3,6 +3,9 @@ title: thread-loader
 source: https://raw.githubusercontent.com/webpack-contrib/thread-loader/master/README.md
 edit: https://github.com/webpack-contrib/thread-loader/edit/master/README.md
 repo: https://github.com/webpack-contrib/thread-loader
+translators:
+  - weiyuan0609
+  - QC-L
 ---
 
 
@@ -137,7 +140,7 @@ threadLoader.warmup(
 [npm]: https://img.shields.io/npm/v/thread-loader.svg
 [npm-url]: https://npmjs.com/package/thread-loader
 [node]: https://img.shields.io/node/v/thread-loader.svg
-[node-url]: https://nodejs.org/
+[node-url]: https://nodejs.org
 [deps]: https://david-dm.org/webpack-contrib/thread-loader.svg
 [deps-url]: https://david-dm.org/webpack-contrib/thread-loader
 [tests]: https://github.com/webpack-contrib/thread-loader/workflows/thread-loader/badge.svg

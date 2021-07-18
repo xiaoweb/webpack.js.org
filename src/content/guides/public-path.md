@@ -5,10 +5,14 @@ contributors:
   - rafaelrinaldi
   - chrisVillanueva
   - gonzoyumo
+  - chenxsan
+translators:
+  - QC-L
+  - jacob-lcs
+  - lcxfs1991
 ---
 
-`publicPath` 配置选项在各种场景中都非常有用。你可以通过它来指定应用程序中所有资源的基础路径。
-
+[`publicPath`](/configuration/output/#outputpublicpath) 配置选项在各种场景中都非常有用。你可以通过它来指定应用程序中所有资源的基础路径。
 
 ## 示例 {#use-cases}
 
@@ -20,7 +24,7 @@ contributors:
 
 想要解决这个问题，可以直接使用一个有着悠久历史的 environment variable(环境变量)。假设我们有一个变量 `ASSET_PATH`：
 
-``` js
+```js
 import webpack from 'webpack';
 
 // 尝试使用环境变量，否则使用根路径
@@ -59,3 +63,19 @@ W> 注意，如果在 entry 文件中使用 ES2015 module import，则会在 imp
 import './public-path';
 import './app';
 ```
+
+### Automatic publicPath {#automaticpublicPath}
+
+有可能你事先不知道 publicPath 是什么，webpack 会自动根据 [`import.meta.url`](/api/module-variables/#importmetaurl)、[`document.currentScript`](https://developer.mozilla.org/en-US/docs/Web/API/Document/currentScript)、`script.src` 或者 `self.location` 变量设置 publicPath。你需要做的是将 [`output.publicPath`](/configuration/output/#outputpublicpath) 设为 `'auto'`：
+
+**webpack.config.js**
+
+```js
+module.exports = {
+  output: {
+    publicPath: 'auto',
+  },
+};
+```
+
+请注意在某些情况下不支持 `document.currentScript`，例如：IE 浏览器，你不得不引入一个 polyfill，例如 [`currentScript Polyfill`](https://github.com/amiller-gh/currentScript-polyfill)。

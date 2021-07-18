@@ -3,6 +3,10 @@ title: postcss-loader
 source: https://raw.githubusercontent.com/webpack-contrib/postcss-loader/master/README.md
 edit: https://github.com/webpack-contrib/postcss-loader/edit/master/README.md
 repo: https://github.com/webpack-contrib/postcss-loader
+translators:
+  - wangjq4214
+  - QC-L
+  - jacob-lcs
 ---
 
 </div>
@@ -23,6 +27,8 @@ PostCSS chat: [![chat-postcss][chat-postcss]][chat-postcss-url]
 使用 [`PostCSS`](https://github.com/postcss/postcss) 处理 CSS 的 loader。
 
 ## 快速开始 {#getting-started}
+
+如果要使用最新版本的话，你需要使用 webpack v5。如果使用 webpack v4 的话，你需要安装 postcss-loader v4。
 
 为了使用本 loader，你需要安装 `postcss-loader` 和 `postcss`：
 
@@ -112,8 +118,9 @@ module.exports = {
 |                名称                 |         类型         |          默认值           | 描述                                      |
 | :---------------------------------: | :------------------: | :-----------------------: | :---------------------------------------- |
 |        [`execute`](#execute)        |     `{Boolean}`      |        `undefined`        | 在 `CSS-in-JS` 中启动 PostCSS Parser 支持 |
-| [`postcssOptions`](#postcssoptions) | `{Object\/Function}` | `Postcss.process的默认值` | 设置 `PostCSS` 选项与插件                 |
+| [`postcssOptions`](#postcssoptions) | `{Object\|Function}` | `Postcss.process的默认值` | 设置 `PostCSS` 选项与插件                 |
 |      [`sourceMap`](#sourcemap)      |     `{Boolean}`      |    `compiler.devtool`     | 开启 / 关闭 source map 的生成             |
+| [`implementation`](#implementation) | `{Function\|String}` |               `postcss`               | 为 PostCSS 设置对应实现并使用          |
 
 ### `execute`
 
@@ -364,7 +371,7 @@ Loader 将会从下面几个地方搜索目录树来寻找配置文件：
 
 ```js
 module.exports = {
-  // 你可以指定下面提到的所有选项 http://api.postcss.org/global.html#processOptions
+  // 你可以指定下面提到的所有选项 https://postcss.org/api/#processoptions
   // parser: 'sugarss',
   plugins: [
     // PostCSS 插件
@@ -383,10 +390,12 @@ module.exports = (api) => {
   // `api.file` - 文件路径
   // `api.mode` - webpack 的 `mode` 属性值，请查阅 https://webpack.js.org/configuration/mode/
   // `api.webpackLoaderContext` - 在复杂情况下使用的 loader 上下文
+  // `api.env` - `api.mode` 的别名，与 `postcss-cli` 兼容
+  // `api.options` - `postcssOptions` 的选项
 
   if (/\.sss$/.test(api.file)) {
     return {
-      //你可以指定下面提到的所有选项 http://api.postcss.org/global.html#processOptions
+      //你可以指定下面提到的所有选项 https://postcss.org/api/#processoptions here
       parser: 'sugarss',
       plugins: [
         // PostCSS 插件
@@ -397,7 +406,7 @@ module.exports = (api) => {
   }
 
   return {
-    // 你可以指定下面提到的所有选项 http://api.postcss.org/global.html#processOptions
+    // 你可以指定下面提到的所有选项 https://postcss.org/api/#processoptions
     plugins: [
       // PostCSS 插件
       ['postcss-short', { prefix: 'x' }],
@@ -411,7 +420,7 @@ module.exports = (api) => {
 
 ```js
 module.exports = {
-  // 你可以指定下面提到的所有选项 http://api.postcss.org/global.html#processOptions
+  // 你可以指定下面提到的所有选项 https://postcss.org/api/#processoptions
   // parser: 'sugarss',
   plugins: {
     // PostCSS 插件
@@ -566,6 +575,65 @@ module.exports = {
           { loader: 'style-loader' },
           { loader: 'css-loader' },
           { loader: 'postcss-loader' },
+          { loader: 'sass-loader' },
+        ],
+      },
+    ],
+  },
+};
+```
+
+### `implementation` {#implementation}
+
+类型：`Function | String`
+默认值：`postcss`
+
+特殊的 `implementation` 选项决定使用 PostCSS 哪个实现。重载本地安装的 `postcss` 的 `peerDependency` 版本。
+
+**此选项只对底层工具的作者有效，以便于 PostCSS 7 到 PostCSS 8 的过渡。**
+
+#### Function {#function}
+
+**webpack.config.js**
+
+```js
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.css$/i,
+        use: [
+          { loader: 'style-loader' },
+          { loader: 'css-loader' },
+          {
+            loader: 'postcss-loader',
+            options: { implementation: require('postcss') },
+          },
+          { loader: 'sass-loader' },
+        ],
+      },
+    ],
+  },
+};
+```
+
+#### String {#string}
+
+**webpack.config.js**
+
+```js
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.css$/i,
+        use: [
+          { loader: 'style-loader' },
+          { loader: 'css-loader' },
+          {
+            loader: 'postcss-loader',
+            options: { implementation: require.resolve('postcss') },
+          },
           { loader: 'sass-loader' },
         ],
       },
@@ -884,7 +952,7 @@ module.exports = {
 };
 ```
 
-### 添加依赖 {#add-dependencies}
+### 添加 dependencies、contextDependencies、buildDependencies、missingDependencies {#add-dependencies-contextdependencies-builddependencies-missingdependencies}
 
 当需要在文件变化时进行重新编译时，webpack 为了理解这样的操作需要添加必要的依赖。
 
@@ -894,7 +962,7 @@ module.exports = {
 
 消息应该包含下面两个字段：
 
-- `type` = `dependency` - 消息类型（必需字段，并且应该为 `dependency`）
+- `type` = `dependency` - 消息类型（必需字段，并且应该为 `dependency`、`context-dependency`、`build-dependency` 或 `missing-dependency`）
 - `file` - 文件的绝对路径（必需）
 
 **webpack.config.js**
@@ -1003,7 +1071,7 @@ module.exports = postcss.plugin('postcss-assets', customPlugin);
 [npm]: https://img.shields.io/npm/v/postcss-loader.svg
 [npm-url]: https://npmjs.com/package/postcss-loader
 [node]: https://img.shields.io/node/v/postcss-loader.svg
-[node-url]: https://nodejs.org/
+[node-url]: https://nodejs.org
 [deps]: https://david-dm.org/webpack-contrib/postcss-loader.svg
 [deps-url]: https://david-dm.org/webpack-contrib/postcss-loader
 [tests]: https://github.com/webpack-contrib/postcss-loader/workflows/postcss-loader/badge.svg

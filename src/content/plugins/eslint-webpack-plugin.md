@@ -1,5 +1,6 @@
 ---
 title: EslintWebpackPlugin
+group: webpack contrib
 source: https://raw.githubusercontent.com/webpack-contrib/eslint-webpack-plugin/master/README.md
 edit: https://github.com/webpack-contrib/eslint-webpack-plugin/edit/master/README.md
 repo: https://github.com/webpack-contrib/eslint-webpack-plugin
@@ -72,7 +73,7 @@ module.exports = {
 npm install eslint-webpack-plugin --save-dev
 ```
 
-**Note**: You also need to install `eslint` from npm, if you haven't already:
+**Note**: You also need to install `eslint >= 7` from npm, if you haven't already:
 
 ```bash
 npm install eslint --save-dev
@@ -116,21 +117,28 @@ A string indicating the root of your files.
 
 Path to `eslint` instance that will be used for linting. If the `eslintPath` is a folder like a official eslint, or specify a `formatter` option. now you dont have to install `eslint`.
 
-### `files`
-
-- Type: `String|Array[String]`
-- Default: `'.'`
-
-Specify directories, files, or globs. Must be relative to `options.context`.
-Directories are traveresed recursively looking for files matching `options.extensions`.
-File and glob patterns ignore `options.extensions`.
-
 ### `extensions`
 
 - Type: `String|Array[String]`
 - Default: `'js'`
 
 Specify extensions that should be checked.
+
+### `exclude`
+
+- Type: `String|Array[String]`
+- Default: `'node_modules'`
+
+Specify the files and/or directories to exclude. Must be relative to `options.context`.
+
+### `files`
+
+- Type: `String|Array[String]`
+- Default: `null`
+
+Specify directories, files, or globs. Must be relative to `options.context`.
+Directories are traveresed recursively looking for files matching `options.extensions`.
+File and glob patterns ignore `options.extensions`.
 
 ### `fix`
 
@@ -155,6 +163,13 @@ Accepts a function that will have one argument: an array of eslint messages (obj
 
 Lint only changed files, skip lint on start.
 
+### `threads`
+
+- Type: `Boolean | Number`
+- Default: `false`
+
+Will run lint tasks across a thread pool. The pool size is automatic unless you specify a number.
+
 ### Errors and Warning
 
 **By default the plugin will auto adjust error reporting depending on eslint errors/warnings counts.**
@@ -163,23 +178,23 @@ You can still force this behavior by using `emitError` **or** `emitWarning` opti
 #### `emitError`
 
 - Type: `Boolean`
-- Default: `false`
+- Default: `true`
 
-Will always return errors, if set to `true`.
+The errors found will always be emitted, to disable set to `false`.
 
 #### `emitWarning`
 
 - Type: `Boolean`
-- Default: `false`
+- Default: `true`
 
-Will always return warnings, if set to `true`.
+The warnings found will always be emitted, to disable set to `false`.
 
 #### `failOnError`
 
 - Type: `Boolean`
-- Default: `false`
+- Default: `true`
 
-Will cause the module build to fail if there are any errors, if set to `true`.
+Will cause the module build to fail if there are any errors, to disable set to `false`.
 
 #### `failOnWarning`
 
@@ -217,7 +232,7 @@ if none is passed in the default/configured formatter will be used.
 [npm]: https://img.shields.io/npm/v/eslint-webpack-plugin.svg
 [npm-url]: https://npmjs.com/package/eslint-webpack-plugin
 [node]: https://img.shields.io/node/v/eslint-webpack-plugin.svg
-[node-url]: https://nodejs.org/
+[node-url]: https://nodejs.org
 [deps]: https://david-dm.org/webpack-contrib/eslint-webpack-plugin.svg
 [deps-url]: https://david-dm.org/webpack-contrib/eslint-webpack-plugin
 [tests]: https://github.com/webpack-contrib/eslint-webpack-plugin/workflows/eslint-webpack-plugin/badge.svg

@@ -5,9 +5,11 @@ contributors:
   - skipjack
   - EugeneHlushko
   - benschac
+translators:
+  - dear-lizhihua
 ---
 
-指南章节，用于理解和掌握 webpack 提供的各种工具和特性。首先，通过 [起步](/guides/getting-started/) 进行简单导入。
+指南章节，用于理解和掌握 webpack 提供的各种工具和特性。首先是一个 [快速开始](/guides/getting-started/) 指引。
 
 指南会逐步带你由浅入深。本章节更多是作为一个切入点，一旦阅读完成后，你就会更加容易深入到实际的 [配置](/configuration) 文档中。
 

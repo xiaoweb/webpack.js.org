@@ -1,5 +1,6 @@
 ---
 title: HtmlMinimizerWebpackPlugin
+group: webpack contrib
 source: https://raw.githubusercontent.com/webpack-contrib/html-minimizer-webpack-plugin/master/README.md
 edit: https://github.com/webpack-contrib/html-minimizer-webpack-plugin/edit/master/README.md
 repo: https://github.com/webpack-contrib/html-minimizer-webpack-plugin
@@ -31,22 +32,15 @@ Then add the plugin to your `webpack` configuration. For example:
 **webpack.config.js**
 
 ```js
-const HtmlMinimizerPlugin = require('html-minimizer-webpack-plugin');
-const CopyPlugin = require('copy-webpack-plugin');
+const HtmlMinimizerPlugin = require("html-minimizer-webpack-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = {
   module: {
     loaders: [
       {
         test: /\.html$/i,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: '[name].[ext]',
-            },
-          },
-        ],
+        type: "asset/resource",
       },
     ],
   },
@@ -54,8 +48,8 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         {
-          context: path.resolve(__dirname, 'dist'),
-          from: './src/*.html',
+          context: path.resolve(__dirname, "dist"),
+          from: "./src/*.html",
         },
       ],
     }),
@@ -141,98 +135,6 @@ module.exports = {
 };
 ```
 
-### `cache`
-
-> ⚠ Ignored in webpack 5! Please use https://webpack.js.org/configuration/other-options/#cache.
-
-Type: `Boolean|String`
-Default: `true`
-
-Enable file caching.
-Default path to cache directory: `node_modules/.cache/html-minimizer-webpack-plugin`.
-
-> ℹ️ If you use your own `minify` function please read the `minify` section for cache invalidation correctly.
-
-#### `Boolean`
-
-Enable/disable file caching.
-
-**webpack.config.js**
-
-```js
-module.exports = {
-  optimization: {
-    minimize: true,
-    minimizer: [
-      new HtmlMinimizerPlugin({
-        cache: true,
-      }),
-    ],
-  },
-};
-```
-
-#### `String`
-
-Enable file caching and set path to cache directory.
-
-**webpack.config.js**
-
-```js
-module.exports = {
-  optimization: {
-    minimize: true,
-    minimizer: [
-      new HtmlMinimizerPlugin({
-        cache: 'path/to/cache',
-      }),
-    ],
-  },
-};
-```
-
-### `cacheKeys`
-
-> ⚠ Ignored in webpack 5! Please use https://webpack.js.org/configuration/other-options/#cache.
-
-Type: `Function<(defaultCacheKeys, file) -> Object>`
-Default: `defaultCacheKeys => defaultCacheKeys`
-
-Allows you to override default cache keys.
-
-Default cache keys:
-
-```js
-({
-  htmlMinimizer: require('html-minifier-terser/package.json').version, // html-minifier-terser version
-  'html-minimizer-webpack-plugin': require('../package.json').version, // plugin version
-  'html-minimizer-webpack-plugin-options': this.options, // plugin options
-  nodeVersion: process.version, // Node.js version
-  assetName: file, // asset path
-  contentHash: crypto.createHash('md4').update(input).digest('hex'), // source file hash
-});
-```
-
-**webpack.config.js**
-
-```js
-module.exports = {
-  optimization: {
-    minimize: true,
-    minimizer: [
-      new HtmlMinimizerPlugin({
-        cache: true,
-        cacheKeys: (defaultCacheKeys, file) => {
-          defaultCacheKeys.myCacheKey = 'myCacheKeyValue';
-
-          return defaultCacheKeys;
-        },
-      }),
-    ],
-  },
-};
-```
-
 ### `parallel`
 
 Type: `Boolean|Number`
@@ -283,14 +185,16 @@ module.exports = {
 
 ### `minify`
 
-Type: `Function`
-Default: `undefined`
+Type: `Function|Array<Function>`
+Default: `HtmlMinimizerPlugin.htmlMinifierTerser`
 
 Allows you to override default minify function.
 By default plugin uses [html-minifier-terser](https://github.com/terser/html-minifier-terser) package.
 Useful for using and testing unpublished versions or forks.
 
 > ⚠️ **Always use `require` inside `minify` function when `parallel` option enabled**.
+
+#### `Function`
 
 **webpack.config.js**
 
@@ -304,11 +208,55 @@ module.exports = {
           collapseWhitespace: true,
         },
         minify: (data, minimizerOptions) => {
-          const htmlMinifier = require('html-minifier-terser');
+          const htmlMinifier = require("html-minifier-terser");
           const [[filename, input]] = Object.entries(data);
 
-          return htmlMinifier.minify(input, minimizerOptions);
+          return {
+            code: htmlMinifier.minify(input, minimizerOptions),
+            warnings: [],
+            errors: [],
+          };
         },
+      }),
+    ],
+  },
+};
+```
+
+#### `Array`
+
+If an array of functions is passed to the `minify` option, the `minimizerOptions` can be an array or an object.
+If `minimizerOptions` is array, the function index in the `minify` array corresponds to the options object with the same index in the `minimizerOptions` array.
+If you use `minimizerOptions` like object, all `minify` function accept it.
+
+**webpack.config.js**
+
+```js
+module.exports = {
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new HtmlMinimizerPlugin({
+        minimizerOptions: [
+          // Options for the first function (HtmlMinimizerPlugin.htmlMinifierTerser)
+          {
+            collapseWhitespace: true,
+          },
+          // Options for the second function
+          {},
+        ],
+        minify: [
+          HtmlMinimizerPlugin.htmlMinifierTerser,
+          (data, minimizerOptions) => {
+            const [[filename, input]] = Object.entries(data);
+            // To do something
+            return {
+              code: `optimised code`,
+              warnings: [],
+              errors: [],
+            };
+          },
+        ],
       }),
     ],
   },
@@ -317,10 +265,12 @@ module.exports = {
 
 ### `minimizerOptions`
 
-Type: `Object`
+Type: `Object|Array<Object>`
 Default: `{ caseSensitive: true, collapseWhitespace: true, conservativeCollapse: true, keepClosingSlash: true, minifyCSS: true, minifyJS: true, removeComments: true, removeScriptTypeAttributes: true, removeStyleLinkTypeAttributes: true, }`
 
 `Html-minifier-terser` optimisations [options](https://github.com/terser/html-minifier-terser#options-quick-reference).
+
+#### `Object`
 
 ```js
 module.exports = {
@@ -331,6 +281,45 @@ module.exports = {
         minimizerOptions: {
           collapseWhitespace: false,
         },
+      }),
+    ],
+  },
+};
+```
+
+#### `Array`
+
+The function index in the `minify` array corresponds to the options object with the same index in the `minimizerOptions` array.
+If you use `minimizerOptions` like object, all `minify` function accept it.
+
+**webpack.config.js**
+
+```js
+module.exports = {
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new HtmlMinimizerPlugin({
+        minimizerOptions: [
+          // Options for the first function (HtmlMinimizerPlugin.htmlMinifierTerser)
+          {
+            collapseWhitespace: true,
+          },
+          // Options for the second function
+          {},
+        ],
+        minify: [
+          HtmlMinimizerPlugin.htmlMinifierTerser,
+          (data, minimizerOptions) => {
+            const [[filename, input]] = Object.entries(data);
+            // To do something
+            return {
+              code: `optimised code`,
+              warnings: [],
+              errors: [],
+            };
+          },
+        ],
       }),
     ],
   },
@@ -350,7 +339,7 @@ Please take a moment to read our contributing guidelines if you haven't yet done
 [npm]: https://img.shields.io/npm/v/html-minimizer-webpack-plugin.svg
 [npm-url]: https://npmjs.com/package/html-minimizer-webpack-plugin
 [node]: https://img.shields.io/node/v/html-minimizer-webpack-plugin.svg
-[node-url]: https://nodejs.org/
+[node-url]: https://nodejs.org
 [deps]: https://david-dm.org/webpack-contrib/html-minimizer-webpack-plugin.svg
 [deps-url]: https://david-dm.org/webpack-contrib/html-minimizer-webpack-plugin
 [tests]: https://github.com/webpack-contrib/html-minimizer-webpack-plugin/workflows/html-minimizer-webpack-plugin/badge.svg

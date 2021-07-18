@@ -1,8 +1,12 @@
 ---
 title: MiniCssExtractPlugin
+group: webpack contrib
 source: https://raw.githubusercontent.com/webpack-contrib/mini-css-extract-plugin/master/README.md
 edit: https://github.com/webpack-contrib/mini-css-extract-plugin/edit/master/README.md
 repo: https://github.com/webpack-contrib/mini-css-extract-plugin
+translators:
+  - wangjq4214
+  - jacob-lcs
 ---
 
 
@@ -50,13 +54,13 @@ body {
 **component.js**
 
 ```js
-import './style.css';
+import "./style.css";
 ```
 
 **webpack.config.js**
 
 ```js
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   plugins: [new MiniCssExtractPlugin()],
@@ -64,7 +68,7 @@ module.exports = {
     rules: [
       {
         test: /\.css$/i,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
       },
     ],
   },
@@ -83,6 +87,7 @@ module.exports = {
 |        **[`insert`](#insert)**        | `{String\|Function}` | `var head = document.getElementsByTagName("head")[0];head.appendChild(linkTag);` | 在指定位置插入 `<link>`                   |
 |    **[`attributes`](#attributes)**    |      `{Object}`      |                                       `{}`                                       | 给标签添加自定义属性                            |
 |      **[`linkType`](#linktype)**      | `{String\|Boolean}`  |              `text/css`               | 允许使用自定义 link 类型加载异步 chunk |
+| **[`experimentalUseImportModule`](#experimentaluseimportmodule)** |     `{Boolean}`      |                `false`                | 使用实验性的 webpack API 来执行模块，而非子代编译器 |
 
 #### `filename` {#filename}
 
@@ -117,7 +122,7 @@ module.exports = {
 类型：`String|Function`
 默认值：`document.head.appendChild(linkTag);`
 
-默认情况下，`extract-css-chunks-plugin` 会将 styles（`<link>` 元素）附加到当前 `window` 的 `document.head` 中。
+默认情况下，`mini-css-extract-plugin` 会将 styles（`<link>` 元素）附加到当前 `window` 的 `document.head` 中。
 
 但在某些情况下，可能需要对附加的目标进行精细化管理，甚至延迟 `link` 元素的插入。
 例如，当你在 iframe 中运行应用程序异步加载样式时，就属于此情况。
@@ -134,7 +139,7 @@ module.exports = {
 
 ```js
 new MiniCssExtractPlugin({
-  insert: '#some-element',
+  insert: "#some-element",
 });
 ```
 
@@ -153,7 +158,7 @@ new MiniCssExtractPlugin({
 ```js
 new MiniCssExtractPlugin({
   insert: function (linkTag) {
-    var reference = document.querySelector('#some-element');
+    var reference = document.querySelector("#some-element");
     if (reference) {
       reference.parentNode.insertBefore(linkTag, reference);
     }
@@ -173,14 +178,14 @@ new MiniCssExtractPlugin({
 **webpack.config.js**
 
 ```js
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   plugins: [
     new MiniCssExtractPlugin({
       attributes: {
-        id: 'target',
-        'data-target': 'example',
+        id: "target",
+        "data-target": "example",
       },
     }),
   ],
@@ -188,7 +193,7 @@ module.exports = {
     rules: [
       {
         test: /\.css$/i,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
       },
     ],
   },
@@ -211,19 +216,19 @@ module.exports = {
 **webpack.config.js**
 
 ```js
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   plugins: [
     new MiniCssExtractPlugin({
-      linkType: 'text/css',
+      linkType: "text/css",
     }),
   ],
   module: {
     rules: [
       {
         test: /\.css$/i,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
       },
     ],
   },
@@ -237,7 +242,7 @@ module.exports = {
 **webpack.config.js**
 
 ```js
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   plugins: [
@@ -249,7 +254,39 @@ module.exports = {
     rules: [
       {
         test: /\.css$/i,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
+      },
+    ],
+  },
+};
+```
+
+#### `experimentalUseImportModule` {#experimentaluseimportmodule}
+
+使用实验性的 webpack API 来执行模块，而非子代编译器。
+
+使用此 API 在性能和内存占用方面有很大改善，但没有正常的方式稳定。
+
+当与 `experiments.layer` 结合使用时，这在 loader 配置中增加了一个 `layer` 选项，为 css 指定执行 layer。
+
+你需保证 webpack 的版本至少为 5.33.2。
+
+**webpack.config.js**
+
+```js
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+
+module.exports = {
+  plugins: [
+    new MiniCssExtractPlugin({
+      experimentalUseImportModule: true,
+    }),
+  ],
+  module: {
+    rules: [
+      {
+        test: /\.css$/i,
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
       },
     ],
   },
@@ -261,8 +298,8 @@ module.exports = {
 |              名称               |         类型         |              默认值               | 描述                                                                       |
 | :-----------------------------: | :------------------: | :--------------------------------: | :-------------------------------------------------------------------------------- |
 | **[`publicPath`](#publicpath)** | `{String\|Function}` | `webpackOptions.output.publicPath` | 为图片、文件等外部资源指定一个自定义的公共路径。 |
+|       **[`emit`](#emit)**       |     `{Boolean}`      |               `true`               | 如果设为 false，插件将会提取 CSS **但不会** 生成文件         |
 |   **[`esModule`](#esmodule)**   |     `{Boolean}`      |               `true`               | 使用 ES modules 语法                                                             |
-|    **[`modules`](#modules)**    |      `{Object}`      |            `undefined`             | 配置 CSS 模块                                                         |
 
 #### `publicPath` {#publicpath}
 
@@ -277,7 +314,7 @@ module.exports = {
 **webpack.config.js**
 
 ```js
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   plugins: [
@@ -296,10 +333,10 @@ module.exports = {
           {
             loader: MiniCssExtractPlugin.loader,
             options: {
-              publicPath: '/public/path/to/',
+              publicPath: "/public/path/to/",
             },
           },
-          'css-loader',
+          "css-loader",
         ],
       },
     ],
@@ -312,7 +349,7 @@ module.exports = {
 **webpack.config.js**
 
 ```js
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   plugins: [
@@ -332,11 +369,11 @@ module.exports = {
             loader: MiniCssExtractPlugin.loader,
             options: {
               publicPath: (resourcePath, context) => {
-                return path.relative(path.dirname(resourcePath), context) + '/';
+                return path.relative(path.dirname(resourcePath), context) + "/";
               },
             },
           },
-          'css-loader',
+          "css-loader",
         ],
       },
     ],
@@ -344,7 +381,15 @@ module.exports = {
 };
 ```
 
-### `esModule` {#esmodule}
+#### `emit` {#emit}
+
+类型：`Boolean`
+默认值：`true`
+
+如果设置为 true，会发送一个文件（向文件系统中写入一个文件）。如果设置为 false，该插件将会提取 CSS 但是 **不会** 发送文件。
+禁用该配置对服务侧的包比较有用。
+
+#### `esModule` {#esmodule}
 
 类型：`Boolean`
 默认值：`true`
@@ -357,7 +402,7 @@ module.exports = {
 **webpack.config.js**
 
 ```js
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   plugins: [new MiniCssExtractPlugin()],
@@ -372,7 +417,7 @@ module.exports = {
               esModule: false,
             },
           },
-          'css-loader',
+          "css-loader",
         ],
       },
     ],
@@ -380,25 +425,85 @@ module.exports = {
 };
 ```
 
-#### `modules` {#modules}
+## 示例 {#examples}
 
-类型：`Object`
-默认值：`undefined`
+### 推荐 {#recommend}
 
-用于配置 CSS Modules。
+推荐 `production` 环境的构建将 CSS 从你的 bundle 中分离出来，这样可以使用 CSS/JS 文件的并行加载。
+这可以通过使用 `mini-css-extract-plugin` 来实现，因为它可以创建单独的 CSS 文件。
+对于 `development` 模式（包括 `webpack-dev-server`），你可以使用 [style-loader](/loaders/style-loader/)，因为它可以使用多个 <style></style> 标签将 CSS 插入到 DOM 中，并且反应会更快。
 
-##### `namedExport` {#namedexport}
+> i 不要同时使用 `style-loader` 与 `mini-css-extract-plugin`。
 
-类型：`Boolean`
-类型：`false`
+**webpack.config.js**
 
-启用/禁用 ES 模块命名导出。
+```js
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const devMode = process.env.NODE_ENV !== "production";
+
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.(sa|sc|c)ss$/,
+        use: [
+          devMode ? "style-loader" : MiniCssExtractPlugin.loader,
+          "css-loader",
+          "postcss-loader",
+          "sass-loader",
+        ],
+      },
+    ],
+  },
+  plugins: [].concat(devMode ? [] : [new MiniCssExtractPlugin()]),
+};
+```
+
+### 最简单的例子 {#minimal-example}
+
+**webpack.config.js**
+
+```js
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+
+module.exports = {
+  plugins: [
+    new MiniCssExtractPlugin({
+      // Options similar to the same options in webpackOptions.output
+      // all options are optional
+      filename: "[name].css",
+      chunkFilename: "[id].css",
+      ignoreOrder: false, // Enable to remove warnings about conflicting order
+    }),
+  ],
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              // you can specify a publicPath here
+              // by default it uses publicPath in webpackOptions.output
+              publicPath: "../",
+            },
+          },
+          "css-loader",
+        ],
+      },
+    ],
+  },
+};
+```
+
+### Named export for CSS Modules {#name-export-for-css-modules}
 
 > ⚠ 命名会被修改为 `camelCase` 的形式。
 
 > ⚠ 不允许在 css 的 class name 中使用 JavaScript 关键字。
 
-> ⚠ 应启用 `css-loader` 和 `MiniCssExtractPlugin.loader` 中的 `esModule` 以及 `modules.namedExport` 选项。
+> ⚠ 应启用 `css-loader` 中的 `esModule` 以及 `modules.namedExport` 选项。
 
 **styles.css**
 
@@ -414,17 +519,17 @@ module.exports = {
 **index.js**
 
 ```js
-import { fooBaz, bar } from './styles.css';
+import { fooBaz, bar } from "./styles.css";
 
 console.log(fooBaz, bar);
 ```
 
-你可以按照如下配置启用 ES 模块命名导出。
+你可以按照如下配置启用 ES 模块命名导出：
 
 **webpack.config.js**
 
 ```js
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   plugins: [new MiniCssExtractPlugin()],
@@ -435,100 +540,17 @@ module.exports = {
         use: [
           {
             loader: MiniCssExtractPlugin.loader,
+          },
+          {
+            loader: "css-loader",
             options: {
               esModule: true,
               modules: {
                 namedExport: true,
+                localIdentName: "foo__[name]__[local]",
               },
             },
           },
-          {
-            loader: 'css-loader',
-            options: {
-              esModule: true,
-              modules: {
-                namedExport: true,
-                localIdentName: 'foo__[name]__[local]',
-              },
-            },
-          },
-        ],
-      },
-    ],
-  },
-};
-```
-
-## 示例 {#examples}
-
-### 最简单的例子 {#minimal-example}
-
-**webpack.config.js**
-
-```js
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-
-module.exports = {
-  plugins: [
-    new MiniCssExtractPlugin({
-      // 类似于 webpackOptions.output 中的选项
-      // 所有选项都是可选的
-      filename: '[name].css',
-      chunkFilename: '[id].css',
-      ignoreOrder: false, // 忽略有关顺序冲突的警告
-    }),
-  ],
-  module: {
-    rules: [
-      {
-        test: /\.css$/,
-        use: [
-          {
-            loader: MiniCssExtractPlugin.loader,
-            options: {
-              // 你可以在这里指定特定的 publicPath
-              // 默认情况下使用 webpackOptions.output 中的 publicPath
-              publicPath: '../',
-            },
-          },
-          'css-loader',
-        ],
-      },
-    ],
-  },
-};
-```
-
-### 通用用例 {#common-use-case}
-
-`mini-css-extract-plugin` is more often used in `production` mode to get separate css files.
-For `development` mode (including `webpack-dev-server`) you can use `style-loader`, because it injects CSS into the DOM using multiple <style></style> and works faster.
-
-> i Do not use together `style-loader` and `mini-css-extract-plugin`.
-
-**webpack.config.js**
-
-```js
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const devMode = process.env.NODE_ENV !== 'production';
-
-const plugins = [];
-if (!devMode) {
-  // enable in production only
-  plugins.push(new MiniCssExtractPlugin());
-}
-
-module.exports = {
-  plugins,
-  module: {
-    rules: [
-      {
-        test: /\.(sa|sc|c)ss$/,
-        use: [
-          devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
-          'css-loader',
-          'postcss-loader',
-          'sass-loader',
         ],
       },
     ],
@@ -541,7 +563,7 @@ module.exports = {
 **webpack.config.js**
 
 ```js
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   plugins: [
@@ -568,7 +590,7 @@ module.exports = {
               },
             },
           },
-          'css-loader',
+          "css-loader",
         ],
       },
     ],
@@ -590,16 +612,16 @@ module.exports = {
 **webpack.config.js**
 
 ```js
-const webpack = require('webpack');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const devMode = process.env.NODE_ENV !== 'production';
+const webpack = require("webpack");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const devMode = process.env.NODE_ENV !== "production";
 
 const plugins = [
   new MiniCssExtractPlugin({
     // Options similar to the same options in webpackOptions.output
     // both options are optional
-    filename: devMode ? '[name].css' : '[name].[contenthash].css',
-    chunkFilename: devMode ? '[id].css' : '[id].[contenthash].css',
+    filename: devMode ? "[name].css" : "[name].[contenthash].css",
+    chunkFilename: devMode ? "[id].css" : "[id].[contenthash].css",
   }),
 ];
 if (devMode) {
@@ -615,9 +637,9 @@ module.exports = {
         test: /\.(sa|sc|c)ss$/,
         use: [
           MiniCssExtractPlugin.loader,
-          'css-loader',
-          'postcss-loader',
-          'sass-loader',
+          "css-loader",
+          "postcss-loader",
+          "sass-loader",
         ],
       },
     ],
@@ -639,15 +661,15 @@ module.exports = {
 **webpack.config.js**
 
 ```js
-const webpack = require('webpack');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const webpack = require("webpack");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const plugins = [
   new MiniCssExtractPlugin({
     // Options similar to the same options in webpackOptions.output
     // both options are optional
-    filename: devMode ? '[name].css' : '[name].[contenthash].css',
-    chunkFilename: devMode ? '[id].css' : '[id].[contenthash].css',
+    filename: devMode ? "[name].css" : "[name].[contenthash].css",
+    chunkFilename: devMode ? "[id].css" : "[id].[contenthash].css",
   }),
 ];
 if (devMode) {
@@ -666,7 +688,7 @@ module.exports = {
             loader: MiniCssExtractPlugin.loader,
             options: {},
           },
-          'css-loader',
+          "css-loader",
         ],
       },
     ],
@@ -681,28 +703,28 @@ module.exports = {
 **webpack.config.js**
 
 ```js
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 
 module.exports = {
   plugins: [
     new MiniCssExtractPlugin({
-      filename: '[name].css',
-      chunkFilename: '[id].css',
+      filename: "[name].css",
+      chunkFilename: "[id].css",
     }),
   ],
   module: {
     rules: [
       {
         test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
       },
     ],
   },
   optimization: {
     minimizer: [
       // For webpack@5 you can use the `...` syntax to extend existing minimizers (i.e. `terser-webpack-plugin`), uncomment the next line
-      // `...`
+      // `...`,
       new CssMinimizerPlugin(),
     ],
   },
@@ -726,16 +748,18 @@ module.exports = {
 **webpack.config.js**
 
 ```js
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   optimization: {
     splitChunks: {
       cacheGroups: {
         styles: {
-          name: 'styles',
-          test: /\.css$/,
-          chunks: 'all',
+          name: "styles",
+          type: "css/mini-extract",
+          // For webpack@4
+          // test: /\.css$/,
+          chunks: "all",
           enforce: true,
         },
       },
@@ -743,19 +767,21 @@ module.exports = {
   },
   plugins: [
     new MiniCssExtractPlugin({
-      filename: '[name].css',
+      filename: "[name].css",
     }),
   ],
   module: {
     rules: [
       {
         test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
       },
     ],
   },
 };
 ```
+
+请注意在 webpack 5 中应该使用 `type` 而不是 `test`，否则将会生成 `.js` 文件而不是 `.css`。这是因为 `test` 不知道应该去掉哪个模块（在这种情况下，它不会检测到 `.js` 应该被删除）。
 
 ### 基于入口提取 CSS {#extracting-css-based-on-entry}
 
@@ -764,15 +790,18 @@ module.exports = {
 这样也避免了 ExtractTextPlugin 造成的 CSS 重复复制问题。
 
 ```js
-const path = require('path');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const path = require("path");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
-function recursiveIssuer(m) {
-  if (m.issuer) {
-    return recursiveIssuer(m.issuer);
+function recursiveIssuer(m, c) {
+  const issuer = c.moduleGraph.getIssuer(m);
+  // For webpack@4 issuer = m.issuer
+
+  if (issuer) {
+    return recursiveIssuer(issuer, c);
   }
 
-  const chunks = m.getChunks();
+  const chunks = c.chunkGraph.getModuleChunks(m);
   // For webpack@4 chunks = m._chunks
 
   for (const chunk of chunks) {
@@ -784,24 +813,26 @@ function recursiveIssuer(m) {
 
 module.exports = {
   entry: {
-    foo: path.resolve(__dirname, 'src/foo'),
-    bar: path.resolve(__dirname, 'src/bar'),
+    foo: path.resolve(__dirname, "src/foo"),
+    bar: path.resolve(__dirname, "src/bar"),
   },
   optimization: {
     splitChunks: {
       cacheGroups: {
         fooStyles: {
-          name: 'styles_foo',
-          test: (m, c, entry = 'foo') =>
-            m.constructor.name === 'CssModule' && recursiveIssuer(m) === entry,
-          chunks: 'all',
+          name: "styles_foo",
+          test: (m, c, entry = "foo") =>
+            m.constructor.name === "CssModule" &&
+            recursiveIssuer(m, c) === entry,
+          chunks: "all",
           enforce: true,
         },
         barStyles: {
-          name: 'styles_bar',
-          test: (m, c, entry = 'bar') =>
-            m.constructor.name === 'CssModule' && recursiveIssuer(m) === entry,
-          chunks: 'all',
+          name: "styles_bar",
+          test: (m, c, entry = "bar") =>
+            m.constructor.name === "CssModule" &&
+            recursiveIssuer(m, c) === entry,
+          chunks: "all",
           enforce: true,
         },
       },
@@ -809,14 +840,14 @@ module.exports = {
   },
   plugins: [
     new MiniCssExtractPlugin({
-      filename: '[name].css',
+      filename: "[name].css",
     }),
   ],
   module: {
     rules: [
       {
         test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
       },
     ],
   },
@@ -832,19 +863,19 @@ module.exports = {
 **webpack.config.js**
 
 ```js
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   plugins: [
     new MiniCssExtractPlugin({
-      filename: ({ chunk }) => `${chunk.name.replace('/js/', '/css/')}.css`,
+      filename: ({ chunk }) => `${chunk.name.replace("/js/", "/css/")}.css`,
     }),
   ],
   module: {
     rules: [
       {
         test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
       },
     ],
   },
@@ -858,20 +889,20 @@ module.exports = {
 **webpack.config.js**
 
 ```js
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   plugins: [
     new MiniCssExtractPlugin({
-      filename: '[name].[contenthash].css',
-      chunkFilename: '[id].[contenthash].css',
+      filename: "[name].[contenthash].css",
+      chunkFilename: "[id].[contenthash].css",
     }),
   ],
   module: {
     rules: [
       {
         test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
       },
     ],
   },
@@ -885,7 +916,7 @@ module.exports = {
 **webpack.config.js**
 
 ```js
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   plugins: [
@@ -897,7 +928,7 @@ module.exports = {
     rules: [
       {
         test: /\.css$/i,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
       },
     ],
   },
@@ -924,7 +955,7 @@ module.exports = {
 [npm]: https://img.shields.io/npm/v/mini-css-extract-plugin.svg
 [npm-url]: https://npmjs.com/package/mini-css-extract-plugin
 [node]: https://img.shields.io/node/v/mini-css-extract-plugin.svg
-[node-url]: https://nodejs.org/
+[node-url]: https://nodejs.org
 [deps]: https://david-dm.org/webpack-contrib/mini-css-extract-plugin.svg
 [deps-url]: https://david-dm.org/webpack-contrib/mini-css-extract-plugin
 [tests]: https://github.com/webpack-contrib/mini-css-extract-plugin/workflows/mini-css-extract-plugin/badge.svg
