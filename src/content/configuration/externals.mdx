@@ -24,7 +24,7 @@ translators:
 
 `externals` 配置选项提供了「从输出的 bundle 中排除依赖」的方法。相反，所创建的 bundle 依赖于那些存在于用户环境(consumer's environment)中的依赖。此功能通常对 **library 开发人员**来说是最有用的，然而也会有各种各样的应用程序用到它。
 
-## `externals` {#externals}
+## externals $#externals$
 
 `string` `[string]` `object` `function` `RegExp`
 
@@ -70,7 +70,7 @@ $('.my-element').animate(/* ... */);
 
 可以接受以下语法……
 
-### 字符串 {#string}
+### 字符串 $#string$
 
 请查看上面的例子。属性名称是 `jquery`，表示应该排除 `import $ from 'jquery'` 中的 `jquery` 模块。为了替换这个模块，`jQuery` 的值将被用来检索一个全局的 `jQuery` 变量。换句话说，当设置为一个字符串时，它将被视为`全局的`（定义在上面和下面）。
 
@@ -99,7 +99,7 @@ import fs from 'fs-extra';
 const fs = require('fs-extra');
 ```
 
-### `[string]` {#string}
+### [string] $#string$
 
 ```javascript
 module.exports = {
@@ -112,7 +112,7 @@ module.exports = {
 
 `subtract: ['./math', 'subtract']` 转换为父子结构，其中 `./math` 是父模块，而 bundle 只引用 `subtract` 变量下的子集。该例子会编译成 `require('./math').subtract;`
 
-### 对象 {#object}
+### 对象 $#object$
 
 W> 一个形如 `{ root, amd, commonjs, ... }` 的对象仅允许用于 [`libraryTarget: 'umd'`](/configuration/output/#outputlibrarytarget) 这样的配置.它不被允许 用于其它的 library targets 配置值.
 
@@ -145,7 +145,7 @@ module.exports = {
 
 此语法用于描述外部 library 所有可用的访问方式。这里 `lodash` 这个外部 library 可以在 AMD 和 CommonJS 模块系统中通过 `lodash` 访问，但在全局变量形式下用 `_` 访问。`subtract` 可以通过全局 `math` 对象下的属性 `subtract` 访问（例如 `window['math']['subtract']`）。
 
-### 函数 {#function}
+### 函数 $#function$
 
 - `function ({ context, request, contextInfo, getResolve }, callback)`
 - `function ({ context, request, contextInfo, getResolve }) => promise` <Badge text='5.15.0+' />
@@ -247,7 +247,7 @@ module.exports = {
 };
 ```
 
-### RegExp {#regexp}
+### RegExp $#regexp$
 
 匹配给定正则表达式的每个依赖，都将从输出 bundle 中排除。
 
@@ -262,7 +262,7 @@ module.exports = {
 
 这个示例中，所有名为 `jQuery` 的依赖（忽略大小写），或者 `$`，都会被外部化。
 
-### 混用语法 {#combining-syntaxes}
+### 混用语法 $#combining-syntaxes$
 
 有时你需要混用上面介绍的语法。这可以像以下这样操作：
 
@@ -301,7 +301,7 @@ W> 如果你指定的 `externals` 未使用类型，则会使用[默认类型](/
 
 关于如何使用此 externals 配置的更多信息，请参考 [如何编写 library](/guides/author-libraries)。
 
-### `byLayer` {#bylayer}
+### byLayer $#bylayer$
 
 `function` `object`
 
@@ -321,7 +321,7 @@ module.exports = {
 };
 ```
 
-## `externalsType` {#externalstype}
+## externalsType $#externalstype$
 
 `string = 'var'`
 
@@ -358,7 +358,7 @@ module.exports = {
 };
 ```
 
-### externalsType.module {#externalstype-module}
+### externalsType.module $#externalstype-module$
 
 Specify the default type of externals as `'module'`. Webpack will generate code like `import * as X from '...'` for externals used in a module.
 
@@ -392,7 +392,7 @@ module.export = {
 
 Specify the default type of externals as `'script'`. Webpack will Load the external as a script exposing predefined global variables with HTML `<script>` element. The `<script>` tag would be removed after the script has been loaded.
 
-#### Syntax {#syntax}
+#### Syntax $#syntax$
 
 ```javascript
 module.exports = {
@@ -421,7 +421,7 @@ module.exports = {
 
 请注意，[`output.publicPath`](/configuration/output/#outputpublicpath) 不会被添加到提供的 URL 中。
 
-#### 示例 {#example}
+#### 示例 $#example$
 
 从 CDN 加载 `lodash`：
 
@@ -472,7 +472,7 @@ T> 当加载带有 HTML `<script>` 标签的代码时，webpack 的 runtime 将�
 
 T> 像 `output.chunkLoadTimeout`，`output.crossOriginLoading` 以及 `output.scriptType` 等选项也会对这种方式加载的 external 脚本产生影响。
 
-## `externalsPresets` {#externals-presets}
+## externalsPresets $#externals-presets$
 
 `object`
 

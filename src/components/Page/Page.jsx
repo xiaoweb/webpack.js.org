@@ -14,6 +14,7 @@ import AdjacentPages from './AdjacentPages';
 
 // Load Styling
 import './Page.scss';
+import Link from '../Link/Link';
 export default function Page(props) {
   const {
     title,
@@ -61,16 +62,17 @@ export default function Page(props) {
     }
   }, [contentLoaded, pathname, hash]);
 
+  const numberOfContributors = contributors.length;
   const loadRelated = contentLoaded && related && related.length !== 0;
   const loadContributors =
-    contentLoaded && contributors && contributors.length !== 0;
+    contentLoaded && contributors && numberOfContributors !== 0;
   const loadTranslators =
     contentLoaded && translators && translators.length !== 0;
 
   let contentRender;
 
   if (typeof content === 'function') {
-    contentRender = content({}).props.children.slice(4); // Cut frontmatter information
+    contentRender = content({}).props.children;
     contentRender = Children.map(contentRender, (child) => {
       if (isValidElement(child)) {
         if (child.props.mdxType === 'pre') {
@@ -103,7 +105,7 @@ export default function Page(props) {
             <ul>
               {related.map((link, index) => (
                 <li key={index}>
-                  <a href={link.url}>{link.title}</a>
+                  <Link to={link.url}>{link.title}</Link>
                 </li>
               ))}
             </ul>
@@ -118,15 +120,17 @@ export default function Page(props) {
 
         {loadTranslators && (
           <div className="contributors__section">
-            <hr />
             <h3>译者</h3>
             <Translators translators={translators} />
           </div>
         )}
 
         {loadContributors && (
-          <div className="contributors__section">
-            <h3>贡献者</h3>
+          <div data-testid="contributors" className="print:hidden">
+            <h2 className="!font-sans !font-normal">
+              {numberOfContributors}{' '}
+              位贡献者
+            </h2>
             <Contributors contributors={contributors} />
           </div>
         )}

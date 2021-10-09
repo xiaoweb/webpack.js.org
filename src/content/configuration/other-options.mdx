@@ -30,7 +30,7 @@ translators:
 
 W> 寻求帮助：这个页面还在更新中，如果你发现本页面内有描述不准确或者不完整，请在 [webpack 的文档仓库](https://github.com/webpack/webpack.js.org)中创建 issue 或者 pull request
 
-## amd {#amd}
+## amd $#amd$
 
 `object` `boolean: false`
 
@@ -54,7 +54,7 @@ module.exports = {
 此选项允许将模块查找的键(key)设置为真值(truthy value)。
 发生这种情况时，webpack 中的 AMD 支持将忽略定义的名称。
 
-## bail {#bail}
+## bail $#bail$
 
 `boolean = false`
 
@@ -73,7 +73,7 @@ module.exports = {
 
 W> 避免在 [`watch`](/configuration/watch) 模式下使用 `ball` 选项，因为这将会致使 webpack 在发现错误时尽快退出。
 
-## dependencies {#dependencies}
+## dependencies $#dependencies$
 
 `[string]`
 
@@ -103,9 +103,9 @@ module.exports = [
 ];
 ```
 
-## ignoreWarnings {#ignorewarnings}
+## ignoreWarnings $#ignorewarnings$
 
-`RegExp` `function (WebpackError, Compilation) => boolean` `{module?: RegExp, file?: RegExp, message?: RegExp}`
+`[RegExp, function (WebpackError, Compilation) => boolean, {module?: RegExp, file?: RegExp, message?: RegExp}]`
 
 告诉 webpack 忽略掉特定的警告。类型可以是 `RegExp`，可以是自定义 `function`。如果类型为函数，可基于原始 warning 来选择性展示警告，其参数分别为 `WebpackError` 和 `Compilation`，且返回值为 `boolean`。还可以包含以下属性的 `object`：
 
@@ -113,7 +113,7 @@ module.exports = [
 - `message`： 类型为 `RegExp`，用于选择警告的内容。
 - `module`： 类型为 `RegExp`，用于选择警告来源的模块。
 
-`ignoreWarnings` 可以是上述任意类型组成的 `array`。
+`ignoreWarnings` 必须是上述任意或所有类型组成的 `array`。
 
 ```javascript
 module.exports = {
@@ -126,16 +126,160 @@ module.exports = {
       module: /[13]/,
       message: /homepage/,
     },
+    /warning from compiler/,
     (warning) => true,
   ],
 };
 ```
 
-## loader {#loader}
+## infrastructureLogging $#infrastructurelogging$
+
+用于基础设施水平的日志选项。
+
+`object = {}`
+
+### appendOnly $#appendonly$
+
+<Badge text="5.31.0+" />
+
+`boolean`
+
+将内容追加到现有输出中，而非更新现有输出，这对于展示状态信息来说非常有用。此选项仅在未提供自定义 [`console`](#console) 的情况下使用。
+
+**webpack.config.js**
+
+```javascript
+module.exports = {
+  //...
+  infrastructureLogging: {
+    appendOnly: true,
+    level: 'verbose',
+  },
+  plugins: [
+    (compiler) => {
+      const logger = compiler.getInfrastructureLogger('MyPlugin');
+      logger.status('first output'); // this line won't be overridden with `appendOnly` enabled
+      logger.status('second output');
+    },
+  ],
+};
+```
+
+### colors $#colors$
+
+<Badge text="5.31.0+" />
+
+`boolean`
+
+为基础设施日志启用带有颜色的输出。此选项仅在未提供自定义 [`console`](#console) 的情况下使用。
+
+**webpack.config.js**
+
+```javascript
+module.exports = {
+  //...
+  infrastructureLogging: {
+    colors: true,
+    level: 'verbose',
+  },
+  plugins: [
+    (compiler) => {
+      const logger = compiler.getInfrastructureLogger('MyPlugin');
+      logger.log('this output will be colorful');
+    },
+  ],
+};
+```
+
+### console $#console$
+
+<Badge text="5.31.0+" />
+
+`Console`
+
+为基础设施日志提供自定义方案。
+
+**webpack.config.js**
+
+```javascript
+module.exports = {
+  //...
+  infrastructureLogging: {
+    console: yourCustomConsole(),
+  },
+};
+```
+
+### debug $#debug$
+
+`string` `boolean = false` `RegExp` `function(name) => boolean` `[string, RegExp, function(name) => boolean]`
+
+开启特定日志比如插件(plugins)和加载器(loaders)的调试信息。 与 [`stats.loggingDebug`](/configuration/stats/#statsloggingdebug) 选项类似但仅仅对于基础设施而言。默认为 `false`。
+
+**webpack.config.js**
+
+```javascript
+module.exports = {
+  //...
+  infrastructureLogging: {
+    level: 'info',
+    debug: ['MyPlugin', /MyPlugin/, (name) => name.contains('MyPlugin')],
+  },
+};
+```
+
+### level $#level$
+
+`string = 'info' : 'none' | 'error' | 'warn' | 'info' | 'log' | 'verbose'`
+
+开启基础设施日志输出。与 [`stats.logging`](/configuration/stats/#statslogging) 选项类似但仅仅是对于基础设施而言。默认值为 `'info'`。
+
+可能的取值：
+
+- `'none'` - 禁用日志
+- `'error'` - 仅仅显示错误
+- `'warn'` - 仅仅显示错误与告警
+- `'info'` - 显示错误、告警与信息
+- `'log'` - 显示错误、告警，信息，日志信息，组别，清楚。 收缩的组别会在收缩的状态中被显示。
+- `'verbose'` - 输出所有日志除了调试与追踪。收缩的组别会在扩展的状态中被显示。
+
+**webpack.config.js**
+
+```javascript
+module.exports = {
+  //...
+  infrastructureLogging: {
+    level: 'info',
+  },
+};
+```
+
+### stream $#stream$
+
+<Badge text="5.31.0+" />
+
+`NodeJS.WritableStream = process.stderr`
+
+用于日志输出的流。默认为 `process.stderr`。此选项仅在未提供自定义 [`console`](#console) 的情况下使用。
+
+**webpack.config.js**
+
+```javascript
+module.exports = {
+  //...
+  infrastructureLogging: {
+    stream: process.stderr,
+  },
+};
+```
+
+T> 在 TTY 流的情况下，会启用 `colors` 并禁用 `appendOnly`，反之亦然。
+
+## loader
 
 `object`
 
-在 [loader 上下文](/api/loaders/#the-loader-context)中暴露自定义值。
+在 [loader 上下文](/api/loaders/#the-loader-context) 中暴露自定义值。
 
 例如，你可以在 loader 上下文中定义一个新变量：
 
@@ -164,13 +308,28 @@ module.exports = function (source) {
 
 T> 你可以覆盖 loader 上下文中的属性，因为 webpack 会将所有定义在 `loader` 中的属性负责到 loader 上下文中。
 
-## parallelism {#parallelism}
+## name $#name$
+
+`string`
+
+配置的名称。当加载不同的配置时会被使用。
+
+**webpack.config.js**
+
+```javascript
+module.exports = {
+  //...
+  name: 'admin-app',
+};
+```
+
+## parallelism $#parallelism$
 
 `number = 100`
 
 限制并行处理的模块数量。可以用于调优性能或获取更可靠的性能分析结果。
 
-## profile {#profile}
+## profile $#profile$
 
 `boolean`
 
@@ -181,7 +340,31 @@ T> 使用 [StatsPlugin](https://www.npmjs.com/package/stats-webpack-plugin) 可�
 T> 与 `parallelism: 1` 混用以达到更好的结果。
 需要注意的是，这样做也会减慢建造速度。
 
-## recordsPath {#recordspath}
+## recordsInputPath $#recordsinputpath$
+
+`string`
+
+指定读取最后一条记录的文件的名称。这可以用来重命名一个记录文件，可以查看下面的实例：
+
+## recordsOutputPath $#recordsoutputpath$
+
+`string`
+
+指定记录要写入的位置。以下示例描述了如何用这个选项和 `recordsInptuPaht` 来重命名一个记录文件：
+
+**webpack.config.js**
+
+```javascript
+const path = require('path');
+
+module.exports = {
+  //...
+  recordsInputPath: path.join(__dirname, 'records.json'),
+  recordsOutputPath: path.join(__dirname, 'newRecords.json'),
+};
+```
+
+## recordsPath $#recordspath$
 
 `string`
 
@@ -204,189 +387,7 @@ T> 注意，虽然这个文件是由编译器(compiler)生成的，但你可能�
 
 W> 设置 `recordsPath` 本质上会把 `recordsInputPath` 和 `recordsOutputPath` 都设置成相同的路径。通常来讲这也是符合逻辑的，除非你决定改变记录文件的名称。可以查看下面的实例：
 
-## recordsInputPath {#recordsinputpath}
-
-`string`
-
-指定读取最后一条记录的文件的名称。这可以用来重命名一个记录文件，可以查看下面的实例：
-
-## recordsOutputPath {#recordsoutputpath}
-
-`string`
-
-指定记录要写入的位置。以下示例描述了如何用这个选项和 `recordsInptuPaht` 来重命名一个记录文件：
-
-**webpack.config.js**
-
-```javascript
-const path = require('path');
-
-module.exports = {
-  //...
-  recordsInputPath: path.join(__dirname, 'records.json'),
-  recordsOutputPath: path.join(__dirname, 'newRecords.json'),
-};
-```
-
-## name {#name}
-
-`string`
-
-配置的名称。当加载不同的配置时会被使用。
-
-**webpack.config.js**
-
-```javascript
-module.exports = {
-  //...
-  name: 'admin-app',
-};
-```
-
-## infrastructureLogging {#infrastructurelogging}
-
-用于基础设施水平的日志选项。
-
-`object = {}`
-
-### appendOnly {#appendonly}
-
-<Badge text="5.31.0+" />
-
-`boolean`
-
-将内容追加到现有输出中，而非更新现有输出，这对于展示状态信息来说非常有用。此选项仅在未提供自定义 [`console`](#console) 的情况下使用。
-
-**webpack.config.js**
-
-```javascript
-module.exports = {
-  //...
-  infrastructureLogging: {
-    appendOnly: true,
-    level: 'verbose',
-  },
-  plugins: [
-    (compiler) => {
-      const logger = compiler.getInfrastructureLogger('MyPlugin');
-      logger.status('first output'); // this line won't be overridden with `appendOnly` enabled
-      logger.status('second output');
-    },
-  ],
-};
-```
-
-### colors {#colors}
-
-<Badge text="5.31.0+" />
-
-`boolean`
-
-为基础设施日志启用带有颜色的输出。此选项仅在未提供自定义 [`console`](#console) 的情况下使用。
-
-**webpack.config.js**
-
-```javascript
-module.exports = {
-  //...
-  infrastructureLogging: {
-    colors: true,
-    level: 'verbose',
-  },
-  plugins: [
-    (compiler) => {
-      const logger = compiler.getInfrastructureLogger('MyPlugin');
-      logger.log('this output will be colorful');
-    },
-  ],
-};
-```
-
-### console {#console}
-
-<Badge text="5.31.0+" />
-
-`Console`
-
-为基础设施日志提供自定义方案。
-
-**webpack.config.js**
-
-```javascript
-module.exports = {
-  //...
-  infrastructureLogging: {
-    console: yourCustomConsole(),
-  },
-};
-```
-
-### level {#level}
-
-`string`
-
-开启基础设施日志输出。与 [`stats.logging`](/configuration/stats/#statslogging) 选项类似但仅仅是对于基础设施而言。没有默认值提供。
-
-可能的取值：
-
-- `'none'` - 禁用日志
-- `'error'` - 仅仅显示错误
-- `'warn'` - 仅仅显示错误与告警
-- `'info'` - 显示错误、告警与信息
-- `'log'` - 显示错误、告警，信息，日志信息，组别，清楚。 收缩的组别会在收缩的状态中被显示。
-- `'verbose'` - 输出所有日志除了调试与追踪。收缩的组别会在扩展的状态中被显示。
-
-**webpack.config.js**
-
-```javascript
-module.exports = {
-  //...
-  infrastructureLogging: {
-    level: 'info',
-  },
-};
-```
-
-### debug {#debug}
-
-`string` `RegExp` `function(name) => boolean` `[string, RegExp, function(name) => boolean]`
-
-开启特定日志比如插件(plugins)和加载器(loaders)的调试信息。 与 [`stats.loggingDebug`](/configuration/stats/#statsloggingdebug) 选项类似但仅仅对于基础设施而言。没有默认配置提供。
-
-**webpack.config.js**
-
-```javascript
-module.exports = {
-  //...
-  infrastructureLogging: {
-    level: 'info',
-    debug: ['MyPlugin', /MyPlugin/, (name) => name.contains('MyPlugin')],
-  },
-};
-```
-
-### stream {#stream}
-
-<Badge text="5.31.0+" />
-
-`NodeJS.WritableStream = process.stderr`
-
-用于日志输出的流。默认为 `process.stderr`。此选项仅在未提供自定义 [`console`](#console) 的情况下使用。
-
-**webpack.config.js**
-
-```javascript
-module.exports = {
-  //...
-  infrastructureLogging: {
-    stream: process.stderr,
-  },
-};
-```
-
-T> 在 TTY 流的情况下，会启用 `colors` 并禁用 `appendOnly`，反之亦然。
-
-## snapshot {#snapshot}
+## snapshot $#snapshot$
 
 `object`
 
@@ -419,19 +420,7 @@ module.exports = {
 };
 ```
 
-### managedPaths {#managedpaths}
-
-`[string]`
-
-由包管理器管理的路径数组，可以信任它不会被修改。
-
-### immutablePaths {#immutable-paths}
-
-`[string]`
-
-由包管理器管理的路径数组，在其路径中包含一个版本或哈希，以便所有文件都是不可变的（immutable）。
-
-### buildDependencies {#build-dependencies}
+### buildDependencies $#build-dependencies$
 
 `object = { hash boolean = true, timestamp boolean = true }`
 
@@ -446,7 +435,20 @@ module.exports = {
 - `{ timestamp: true }`：对应本地开发缓存很用帮助。
 - `{ timestamp: true, hash: true }`：对于以上提到的两者都很有帮助。首先比较时间戳，这代价很低，因为 webpack 不需要读取文件来计算它们的哈希值。仅当时间戳相同时才会比较内容哈希，这对初始构建的性能影响很小。
 
-### module {#module}
+### immutablePaths $#immutable-paths$
+
+`[string]`
+
+由包管理器管理的路径数组，在其路径中包含一个版本或哈希，以便所有文件都是不可变的（immutable）。
+
+### managedPaths $#managedpaths$
+
+`[string]`
+
+由包管理器管理的路径数组，可以信任它不会被修改。
+
+
+### module $#module$
 
 `object = {hash boolean = true, timestamp boolean = true}`
 
@@ -455,7 +457,7 @@ module.exports = {
 - `hash`：比较内容哈希以判断无效。（比 `timestamp` 更昂贵，但更改的频率较低）。
 - `timestamp`：比较时间戳以确定无效。
 
-### resolve {#resolve}
+### resolve $#resolve$
 
 `object = {hash boolean = true, timestamp boolean = true}`
 
@@ -464,7 +466,7 @@ module.exports = {
 - `hash`：比较内容哈希以判断无效。（比 `timestamp` 更昂贵，但更改的频率较低）。
 - `timestamp`：比较时间戳以确定无效。
 
-### resolveBuildDependencies {#resolve-build-dependencies}
+### resolveBuildDependencies $#resolve-build-dependencies$
 
 `object = {hash boolean = true, timestamp boolean = true}`
 

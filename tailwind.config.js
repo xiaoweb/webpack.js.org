@@ -5,11 +5,15 @@ module.exports = {
   theme: {
     screens: {
       md: '768px',
+      lg: '1024px',
       print: { raw: 'print' },
     },
     extend: {
       fontSize: {
         14: '14px',
+      },
+      gridTemplateColumns: {
+        contributors: 'repeat(auto-fit, 36px)',
       },
     },
     spacing: {
@@ -35,6 +39,8 @@ module.exports = {
         500: '#666',
         600: '#535353',
         700: '#333',
+        800: '#222', // non-branding color
+        900: '#101619', // non-branding color, used by dark mode
       },
     },
   },

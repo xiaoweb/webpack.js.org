@@ -1,0 +1,65 @@
+---
+title: BannerPlugin
+group: webpack
+contributors:
+  - simon04
+  - byzyk
+  - chenxsan
+related:
+  - title: banner-plugin-hashing test
+    url: https://github.com/webpack/webpack/blob/master/test/configCases/plugins/banner-plugin-hashing/webpack.config.js
+---
+
+为每个 chunk 文件头部添加 banner。
+
+```javascript
+const webpack = require('webpack');
+
+new webpack.BannerPlugin(banner);
+// 或者
+new webpack.BannerPlugin(options);
+```
+
+## 选项 $#options$
+
+```ts
+{
+  banner: string | function, // 其值为字符串或函数，将作为注释存在
+  raw: boolean, // 如果值为 true，将直接输出，不会被作为注释
+  entryOnly: boolean, // 如果值为 true，将只在入口 chunks 文件中添加
+  test: string | RegExp | [string, RegExp], // 包含所有匹配的模块
+  include: string | RegExp | [string, RegExp], // 根据条件匹配所有模块
+  exclude: string | RegExp | [string, RegExp], // 根据条件排除所有模块
+}
+```
+
+## 用法 $#usage$
+
+```javascript
+import webpack from 'webpack';
+
+// 字符串
+new webpack.BannerPlugin({
+  banner: 'hello world',
+});
+
+// 函数
+new webpack.BannerPlugin({
+  banner: (yourVariable) => {
+    return `yourVariable: ${yourVariable}`;
+  },
+});
+```
+
+## 占位符 $#placeholders$
+
+从 webpack 2.5.0 开始，会对 `banner` 字符串中的占位符取值：
+
+```javascript
+import webpack from 'webpack';
+
+new webpack.BannerPlugin({
+  banner:
+    'fullhash:[fullhash], chunkhash:[chunkhash], name:[name], filebase:[filebase], query:[query], file:[file]',
+});
+```
