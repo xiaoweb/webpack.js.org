@@ -35,7 +35,7 @@ T> 以下示例来源于 [tree shaking](/guides/tree-shaking) 和 [开发环境]
 
 ## 配置 $#setup$
 
-**development(开发环境)** 和 **production(生产环境)** 这两个环境下的构建目标存在着巨大差异。在**开发环境**中，我们需要：强大的 source map 和一个有着 live reloading(实时重新加载) 或 hot module replacement(热模块替换) 能力的 localhost server。而**生产环境**目标则转移至其他方面，关注点在于压缩 bundle、更轻量的 source map、资源优化等，通过这些优化方式改善加载时间。由于要遵循逻辑分离，我们通常建议为每个环境编写**彼此独立的 webpack 配置**。
+**development(开发环境)** 和 **production(生产环境)** 这两个环境下的构建目标存在着巨大差异。在**开发环境**中，我们需要：强大的 source map 和一个有着 live reloading(实时重新加载) 或 hot module replacement(模块热替换) 能力的 localhost server。而**生产环境**目标则转移至其他方面，关注点在于压缩 bundle、更轻量的 source map、资源优化等，通过这些优化方式改善加载时间。由于要遵循逻辑分离，我们通常建议为每个环境编写**彼此独立的 webpack 配置**。
 
 虽然，以上我们将 _生产环境_ 和 _开发环境_ 做了细微区分，但是，请注意，我们还是会遵循不重复原则(Don't repeat yourself - DRY)，保留一个 "common(通用)" 配置。为了将这些配置合并在一起，我们将使用一个名为 [`webpack-merge`](https://github.com/survivejs/webpack-merge) 的工具。此工具会引用 "common" 配置，因此我们不必再在环境特定(environment-specific)的配置中编写重复代码。
 
@@ -152,7 +152,7 @@ npm install --save-dev webpack-merge
   }
 ```
 
-随便运行下这些脚本，然后查看输出结果的变化，然后我们会继续添加一些 *生产环境* 配置。
+随便运行下这些脚本，然后查看输出结果的变化，然后我们会继续添加一些生产环境配置。
 
 ## 指定 mode $#specify-the-mode$
 
@@ -204,11 +204,11 @@ Webpack v4+ will minify your code by default in [`production mode`](/configurati
 
 - [`ClosureWebpackPlugin`](https://github.com/webpack-contrib/closure-webpack-plugin)
 
-如果决定尝试一些其他压缩插件，确保新插件也会按照 [tree shake](/guides/tree-shaking) 指南中所陈述的具有删除未引用代码(dead code)的能力，并将它作为 [`optimization.minimizer`](/configuration/optimization/#optimization-minimizer)。
+如果决定尝试一些其他压缩插件，确保新插件也会按照 [tree shake](/guides/tree-shaking) 指南中所陈述的具有删除未引用代码(dead code)的能力，并将它作为 [`optimization.minimizer`](/configuration/optimization/#optimizationminimizer)。
 
 ## 源码映射(Source Mapping) $#source-mapping$
 
-我们鼓励你在生产环境中启用 source map，因为它们对 debug(调试源码) 和运行 benchmark tests(基准测试) 很有帮助。虽然有着如此强大的功能，然而还是应该针对生产环境用途，选择一个可以快速构建的推荐配置（更多选项请查看 [`devtool`](/configuration/devtool)）。对于本指南，我们将在 *生产环境* 中使用 `source-map` 选项，而不是我们在 *开发环境* 中用到的 `inline-source-map`：
+我们鼓励你在生产环境中启用 source map，因为它们对 debug(调试源码) 和运行 benchmark tests(基准测试) 很有帮助。虽然有着如此强大的功能，然而还是应该针对生产环境用途，选择一个可以快速构建的推荐配置（更多选项请查看 [`devtool`](/configuration/devtool)）。对于本指南，我们将在 **生产环境** 中使用 `source-map` 选项，而不是我们在开发环境中用到的 `inline-source-map`：
 
 **webpack.prod.js**
 
