@@ -72866,7 +72866,7 @@ function MDXContent(_ref) {
   }, ";"), "\n\n", (0,_mdx_js_react__WEBPACK_IMPORTED_MODULE_1__/* .mdx */ .kt)("span", {
     className: "token comment",
     parentName: "code"
-  }, "// 禁用所有的 laoders"), "\n", (0,_mdx_js_react__WEBPACK_IMPORTED_MODULE_1__/* .mdx */ .kt)("span", {
+  }, "// 禁用所有的 loaders"), "\n", (0,_mdx_js_react__WEBPACK_IMPORTED_MODULE_1__/* .mdx */ .kt)("span", {
     className: "token keyword",
     parentName: "code"
   }, "import"), " ", (0,_mdx_js_react__WEBPACK_IMPORTED_MODULE_1__/* .mdx */ .kt)("span", {
@@ -279261,7 +279261,7 @@ function StatsScript() {
   });
 }
 ;// CONCATENATED MODULE: ../dist/prod-assets-manifest.json
-const prod_assets_manifest_namespaceObject = JSON.parse('{"js":["/vendor.e63a9c1308a47f528841.js","/index.306a0c994f8a828b2a9d.js"],"i":["/index.c114afea0778b47a418a.css","/9517.acfe42251eae743e4e22.css"]}');
+const prod_assets_manifest_namespaceObject = JSON.parse('{"js":["/vendor.e63a9c1308a47f528841.js","/index.70c3af1da6562bc9e3bf.js"],"i":["/index.c114afea0778b47a418a.css","/9517.acfe42251eae743e4e22.css"]}');
 ;// CONCATENATED MODULE: ./server.jsx
 // Import External Dependencies
 
